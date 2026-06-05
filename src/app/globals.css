@@ -1,0 +1,158 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 25% 98%;
+    --foreground: 210 40% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 210 40% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 40% 10%;
+    /* Brand blue #0A66C2 */
+    --primary: 210 90% 40%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 20% 94%;
+    --secondary-foreground: 210 30% 22%;
+    --muted: 210 18% 94%;
+    --muted-foreground: 210 10% 44%;
+    --accent: 210 60% 96%;
+    --accent-foreground: 210 90% 32%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 210 16% 90%;
+    --input: 210 16% 90%;
+    --ring: 210 90% 40%;
+    --radius: 0.75rem;
+    --sidebar: 0 0% 100%;
+    --gradient-start: 210 90% 40%;
+    --gradient-end: 210 90% 28%;
+  }
+
+  .dark {
+    --background: 210 40% 6%;
+    --foreground: 210 30% 96%;
+    --card: 210 35% 9%;
+    --card-foreground: 210 30% 96%;
+    --popover: 210 35% 9%;
+    --popover-foreground: 210 30% 96%;
+    --primary: 210 85% 55%;
+    --primary-foreground: 210 40% 6%;
+    --secondary: 210 28% 14%;
+    --secondary-foreground: 210 30% 96%;
+    --muted: 210 28% 14%;
+    --muted-foreground: 210 15% 60%;
+    --accent: 210 40% 16%;
+    --accent-foreground: 210 85% 70%;
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 210 30% 96%;
+    --border: 210 28% 16%;
+    --input: 210 28% 16%;
+    --ring: 210 85% 55%;
+    --sidebar: 210 35% 8%;
+    --gradient-start: 210 85% 55%;
+    --gradient-end: 210 90% 38%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply scroll-smooth overflow-x-hidden;
+  }
+
+  body {
+    @apply min-h-screen min-h-[100dvh] overflow-x-hidden bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  h1, h2, h3, h4 {
+    @apply tracking-tight;
+  }
+}
+
+@layer components {
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(
+      135deg,
+      hsl(var(--gradient-start)) 0%,
+      hsl(var(--gradient-end)) 100%
+    );
+  }
+
+  .bg-mesh {
+    background-color: hsl(var(--background));
+    background-image:
+      radial-gradient(at 0% 0%, hsl(var(--primary) / 0.1) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, hsl(210 90% 40% / 0.08) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, hsl(var(--primary) / 0.06) 0px, transparent 50%);
+  }
+
+  .bg-dots {
+    background-image: radial-gradient(hsl(var(--border)) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  .glass-panel {
+    @apply border bg-card/80 backdrop-blur-xl;
+    box-shadow: 0 1px 2px hsl(210 40% 10% / 0.04), 0 8px 24px hsl(210 40% 10% / 0.06);
+  }
+
+  .dark .glass-panel {
+    box-shadow: 0 1px 2px hsl(0 0% 0% / 0.2), 0 8px 24px hsl(0 0% 0% / 0.35);
+  }
+
+  .card-elevated {
+    @apply rounded-2xl border bg-card transition-all duration-300;
+    box-shadow: 0 1px 3px hsl(210 40% 10% / 0.05), 0 6px 20px hsl(210 40% 10% / 0.06);
+  }
+
+  .card-elevated:hover {
+    box-shadow: 0 4px 12px hsl(210 40% 10% / 0.08), 0 12px 32px hsl(210 40% 10% / 0.1);
+  }
+
+  .nav-item-active {
+    @apply bg-primary text-primary-foreground shadow-md shadow-primary/25;
+  }
+
+  .section-padding {
+    @apply px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24;
+  }
+
+  .section-eyebrow {
+    @apply text-xs font-bold uppercase tracking-widest text-primary;
+  }
+
+  .hero-glow {
+    background: radial-gradient(
+      ellipse 80% 60% at 50% 0%,
+      hsl(var(--primary) / 0.15),
+      transparent 70%
+    );
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+
+  .animate-fade-in {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-fade-in {
+      animation: fade-in 0.4s ease-out both;
+    }
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0.85; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
