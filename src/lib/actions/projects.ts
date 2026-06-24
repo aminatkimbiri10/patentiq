@@ -14,8 +14,18 @@ import {
   type StatusChangeMode,
 } from "@/lib/workflow/status-permissions";
 import { isCpiStatusTransitionAllowed } from "@/lib/workflow/status-transitions";
+import { notifyUser } from "@/lib/notifications/notify-user";
+import { projectUrlForUser } from "@/lib/notifications/project-url";
+import { PROJECT_STATUS_LABELS } from "@/config/constants";
 import { createProjectSchema } from "@/lib/validations/project";
 import type { ProjectStatus } from "@/types/database";
+
+const OWNER_NOTIFY_STATUSES: ProjectStatus[] = [
+  "awaiting_documents",
+  "approved",
+  "rejected",
+  "closed",
+];
 
 const updateStatusSchema = z.object({
   project_id: z.string().uuid(),
@@ -38,6 +48,42 @@ export type ProjectStatusActionState = {
   message?: string;
   error?: string;
 };
+
+export type DeleteProjectResult = { success?: boolean; error?: string };
+
+export async function deleteProject(projectId: string): Promise<DeleteProjectResult> {
+  const ctx = await requireUser();
+  const supabase = await createClient();
+
+  const { data: project } = await supabase
+    .from("projects")
+    .select("owner_id, title, reference_code")
+    .eq("id", projectId)
+    .single();
+
+  if (!project) return { error: "Projet introuvable" };
+  if (project.owner_id !== ctx.user.id) {
+    return { error: "Seul le porteur peut supprimer ce dossier." };
+  }
+
+  const { error } = await supabase.from("projects").delete().eq("id", projectId);
+
+  if (error) return { error: error.message };
+
+  await logAction({
+    action: "delete",
+    entityType: "project",
+    entityId: projectId,
+    projectId,
+    oldData: { title: project.title, reference_code: project.reference_code },
+  });
+
+  revalidatePath("/dashboard/projects");
+  revalidatePath("/cpi/cases");
+  revalidatePath("/admin/projects");
+
+  return { success: true };
+}
 
 export async function createProject(formData: FormData) {
   const ctx = await requireUser();
@@ -114,7 +160,7 @@ export async function updateProjectStatus(
 
   const { data: current } = await supabase
     .from("projects")
-    .select("status, assigned_to")
+    .select("status, assigned_to, expert_id, owner_id, title, reference_code")
     .eq("id", parsed.data.project_id)
     .single();
 
@@ -185,6 +231,38 @@ export async function updateProjectStatus(
       workflowMessage =
         "Dossier soumis. L'assignation automatique a échoué — contactez le support.";
     }
+  }
+
+  if (
+    previousStatus !== parsed.data.status &&
+    current?.owner_id &&
+    (mode === "cpi" || mode === "admin") &&
+    OWNER_NOTIFY_STATUSES.includes(parsed.data.status)
+  ) {
+    const ref = current.reference_code ?? parsed.data.project_id.slice(0, 8);
+    const label = PROJECT_STATUS_LABELS[parsed.data.status];
+    await notifyUser({
+      userId: current.owner_id,
+      projectId: parsed.data.project_id,
+      notificationType:
+        parsed.data.status === "rejected" ? "warning" : "info",
+      title: `Statut mis à jour : ${label}`,
+      body: `Votre projet « ${current.title} » (${ref}) est passé au statut « ${label} ».`,
+      actionUrl: projectUrlForUser(
+        parsed.data.project_id,
+        current.owner_id,
+        {
+          owner_id: current.owner_id,
+          assigned_to: current.assigned_to,
+          expert_id: current.expert_id,
+        }
+      ),
+      metadata: {
+        event: "status_change_owner",
+        from: previousStatus,
+        to: parsed.data.status,
+      },
+    });
   }
 
   if (needsExpertWorkflow) {

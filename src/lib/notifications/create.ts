@@ -1,7 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Notification } from "@/types/database";
 
-type CreateNotificationInput = {
+export type CreateNotificationInput = {
   userId: string;
   projectId?: string | null;
   notificationType?: "info" | "warning" | "action_required" | "success" | "error";

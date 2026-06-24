@@ -1,0 +1,26 @@
+name: Surveillance Worker
+
+on:
+  schedule:
+    # Lundi 06:00 UTC — veille hebdomadaire
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Scan watchlist OMPIC + veille technologique
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          AI_WORKER_SECRET: ${{ secrets.AI_WORKER_SECRET }}
+          SURVEILLANCE_WORKER_SECRET: ${{ secrets.SURVEILLANCE_WORKER_SECRET }}
+        run: |
+          SECRET="${SURVEILLANCE_WORKER_SECRET:-$AI_WORKER_SECRET}"
+          if [ -z "$APP_URL" ] || [ -z "$SECRET" ]; then
+            echo "Skip: APP_URL or worker secret not configured in GitHub secrets"
+            exit 0
+          fi
+          curl -sS -f -X POST "${APP_URL}/api/surveillance/worker" \
+            -H "Authorization: Bearer ${SECRET}" \
+            -H "Content-Type: application/json"

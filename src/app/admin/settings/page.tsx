@@ -1,3 +1,4 @@
+import { Settings } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { WorkflowSettingsForm } from "@/components/admin/workflow-settings-form";
 import { getWorkflowSettingsForAdmin } from "@/lib/actions/admin-settings";
@@ -20,6 +21,7 @@ export default async function AdminSettingsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
+        icon={Settings}
         title="Paramètres globaux"
         description="Workflow métier et comportement à la soumission des dossiers."
       />

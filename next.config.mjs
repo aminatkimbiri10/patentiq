@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    serverComponentsExternalPackages: ["unpdf", "pdfkit", "sharp"],
+  },
+  transpilePackages: ["pdfjs-dist"],
   images: {
     remotePatterns: [
       {

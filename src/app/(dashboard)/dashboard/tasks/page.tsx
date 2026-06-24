@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { format, isPast, isToday } from "date-fns";
+import { fr } from "date-fns/locale";
 import { requireUser } from "@/lib/auth/require-user";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/shared/page-header";
@@ -6,7 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ListPanel, ListPanelItem } from "@/components/shared/list-panel";
 import { Pagination } from "@/components/shared/pagination";
-import { ListChecks, ArrowUpRight } from "lucide-react";
+import { ListChecks, ArrowUpRight, Calendar, FolderKanban } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { projectTabQuery } from "@/lib/project-tabs";
 import { parsePageParam, getRange, getTotalPages, LIST_PAGE_SIZE } from "@/lib/pagination";
 
 export const metadata = { title: "Tâches" };
@@ -37,17 +41,22 @@ export default async function TasksPage({
 
   const { data: tasks, count } = await supabase
     .from("project_tasks")
-    .select("id, title, status, priority, due_at, project_id, projects(title, reference_code)", {
-      count: "exact",
-    })
-    .or(`assigned_to.eq.${ctx.user.id},created_by.eq.${ctx.user.id}`)
+    .select(
+      "id, title, description, status, priority, due_at, project_id, created_by, assigned_to, projects(title, reference_code)",
+      { count: "exact" }
+    )
+    .eq("assigned_to", ctx.user.id)
     .order("due_at", { ascending: true, nullsFirst: false })
     .range(from, to);
 
   type TaskRow = {
     id: string;
     title: string;
+    description: string | null;
     status: string;
+    due_at: string | null;
+    created_by: string;
+    assigned_to: string | null;
     project_id: string;
     projects:
       | { title: string; reference_code: string | null }
@@ -61,6 +70,7 @@ export default async function TasksPage({
   return (
     <div className="space-y-6">
       <PageHeader
+        icon={ListChecks}
         title="Mes tâches"
         description={
           count != null
@@ -72,25 +82,64 @@ export default async function TasksPage({
         <EmptyState
           icon={ListChecks}
           title="Aucune tâche"
-          description="Créez des tâches depuis la fiche d'un projet."
+          description="Votre conseiller PI vous assignera des actions depuis le dossier (checklist ou formulaire dédié)."
+          action={
+            <Button variant="outline" asChild>
+              <Link href="/dashboard/projects">
+                <FolderKanban className="mr-2 h-4 w-4" />
+                Mes projets
+              </Link>
+            </Button>
+          }
         />
       ) : (
         <>
           <ListPanel>
             {rows.map((task) => {
               const proj = Array.isArray(task.projects) ? task.projects[0] : task.projects;
+              const cpiAssigned =
+                task.created_by && task.assigned_to && task.created_by !== task.assigned_to;
+              const overdue =
+                task.due_at &&
+                task.status !== "completed" &&
+                isPast(new Date(task.due_at)) &&
+                !isToday(new Date(task.due_at));
+
               return (
-                <ListPanelItem key={task.id}>
-                  <div className="min-w-0">
-                    <p className="font-medium">{task.title}</p>
+                <ListPanelItem key={task.id} className="items-start">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-medium">{task.title}</p>
+                      {cpiAssigned && (
+                        <Badge variant="secondary" className="text-[10px]">
+                          CPI
+                        </Badge>
+                      )}
+                      {overdue && (
+                        <Badge variant="destructive" className="text-[10px]">
+                          En retard
+                        </Badge>
+                      )}
+                    </div>
+                    {task.description && (
+                      <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                        {task.description}
+                      </p>
+                    )}
                     <Link
-                      href={`/dashboard/projects/${task.project_id}`}
-                      className="mt-1 inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                      href={`/dashboard/projects/${task.project_id}${projectTabQuery("echanges", "tasks")}`}
+                      className="mt-2 inline-flex items-center gap-1 text-xs text-primary hover:underline"
                     >
                       {proj?.title ?? "Projet"}
                       {proj?.reference_code && ` · ${proj.reference_code}`}
                       <ArrowUpRight className="h-3 w-3" />
                     </Link>
+                    {task.due_at && (
+                      <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                        <Calendar className="h-3 w-3" />
+                        {format(new Date(task.due_at), "d MMM yyyy", { locale: fr })}
+                      </p>
+                    )}
                   </div>
                   <Badge variant={statusVariant[task.status] ?? "outline"}>
                     {statusLabel[task.status] ?? task.status}

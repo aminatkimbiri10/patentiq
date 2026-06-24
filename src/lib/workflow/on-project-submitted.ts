@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createNotifications } from "@/lib/notifications/create";
+import { notifyUsers } from "@/lib/notifications/notify-user";
 import { assignCpiToProject, pickCpiAdvisor } from "@/lib/workflow/assign-cpi";
 import { getWorkflowSettings } from "@/lib/workflow/settings";
 import { PROJECT_STATUS_LABELS } from "@/config/constants";
@@ -72,7 +72,7 @@ export async function handleProjectSubmitted(
     metadata: { workflow: "auto_submit", actor_id: actorId },
   });
 
-  const notifications: Parameters<typeof createNotifications>[0] = [];
+  const notifications: Parameters<typeof notifyUsers>[0] = [];
 
   if (assignedCpiId) {
     notifications.push({
@@ -123,7 +123,7 @@ export async function handleProjectSubmitted(
   });
   notifiedUserIds.push(project.owner_id);
 
-  await createNotifications(notifications);
+  await notifyUsers(notifications);
 
   return {
     assignedCpiId,

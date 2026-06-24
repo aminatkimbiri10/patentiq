@@ -5,7 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { DocumentList } from "@/components/documents/document-list";
 import { EmptyState } from "@/components/shared/empty-state";
-import { FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { FileText, FolderPlus } from "lucide-react";
 import type { Document } from "@/types/database";
 
 export const metadata = { title: "Documents" };
@@ -31,7 +32,8 @@ export default async function DocumentsPage() {
       .select("*")
       .in("project_id", projectIds)
       .neq("status", "deleted")
-      .order("created_at", { ascending: false })
+      .eq("is_latest", true)
+      .order("updated_at", { ascending: false })
       .limit(50);
     documents = (data ?? []) as Document[];
   }
@@ -45,6 +47,7 @@ export default async function DocumentsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
+        icon={FileText}
         title="Documents"
         description="Tous les fichiers de vos projets — stockage privé sécurisé."
       />
@@ -52,7 +55,23 @@ export default async function DocumentsPage() {
         <EmptyState
           icon={FileText}
           title="Aucun document"
-          description="Uploadez des fichiers depuis la fiche d'un projet pour les retrouver ici."
+          description="Ouvrez un projet → onglet Dossier → déposez vos fichiers (PDF, TXT, images)."
+          action={
+            projectIds.length > 0 ? (
+              <Button asChild>
+                <Link href={`/dashboard/projects/${projectIds[0]}`}>
+                  Ouvrir {projectMap.get(projectIds[0])?.title ?? "mon projet"}
+                </Link>
+              </Button>
+            ) : (
+              <Button asChild>
+                <Link href="/dashboard/projects/new">
+                  <FolderPlus className="mr-2 h-4 w-4" />
+                  Créer un projet
+                </Link>
+              </Button>
+            )
+          }
         />
       ) : (
         <div className="space-y-8">

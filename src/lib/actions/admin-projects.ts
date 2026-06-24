@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireUser } from "@/lib/auth/require-user";
 import { logAction } from "@/lib/audit/log-action";
-import { createNotification } from "@/lib/notifications/create";
+import { notifyUser } from "@/lib/notifications/notify-user";
 
 const assignSchema = z.object({
   project_id: z.string().uuid(),
@@ -74,7 +74,7 @@ export async function assignProjectMembers(
       { onConflict: "project_id,user_id" }
     );
 
-    await createNotification({
+    await notifyUser({
       userId: cpiId,
       projectId: parsed.data.project_id,
       notificationType: "action_required",
@@ -98,7 +98,7 @@ export async function assignProjectMembers(
       { onConflict: "project_id,user_id" }
     );
 
-    await createNotification({
+    await notifyUser({
       userId: expertId,
       projectId: parsed.data.project_id,
       notificationType: "action_required",

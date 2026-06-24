@@ -11,7 +11,7 @@ export default function CheckEmailPage({
   return (
     <AuthCard
       title="Confirmer votre email"
-      description="Un lien de confirmation est requis avant la première connexion"
+      description="Consultez votre boîte mail et cliquez sur le lien de confirmation pour activer votre compte PatentIQ."
     >
       <ResendConfirmationForm defaultEmail={searchParams.email ?? ""} />
     </AuthCard>

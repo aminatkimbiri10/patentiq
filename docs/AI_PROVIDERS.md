@@ -1,6 +1,6 @@
-# Providers IA — recherche de nouveauté
+# Providers IA — analyses projet
 
-PatentIQ combine deux APIs **gratuites** (avec inscription) pour la recherche de nouveauté.
+PatentIQ combine deux APIs **gratuites** (avec inscription) pour les analyses brevets et la synthèse textuelle via **Hugging Face**.
 
 ## Architecture
 
@@ -9,7 +9,7 @@ Utilisateur → POST /api/ai/search
            → worker (processAiSearch)
            → runAiSearch()
                 ├─ EPO OPS (brevets réels)  ou stub si clés absentes
-                └─ Gemini (synthèse FR)     ou template si clé absente
+                └─ Hugging Face (synthèse FR) ou template si clé absente
            → ai_results + ai_searches en base
 ```
 
@@ -33,20 +33,23 @@ EPO_OPS_CONSUMER_SECRET=votre_consumer_secret
 
 Sans ces variables, l'app utilise le **stub** (brevets fictifs).
 
-## 2. Google Gemini (synthèse) — gratuit
+## 2. Hugging Face (synthèse LLM) — gratuit
 
-- **Quota** : tier gratuit via [Google AI Studio](https://aistudio.google.com/apikey) (sans carte bancaire)
-- **Modèle par défaut** : `gemini-2.0-flash`
+- **API** : [Inference Providers router](https://huggingface.co/docs/inference-providers) (`router.huggingface.co`)
+- **Token** : [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) — token **Read** suffit
+- **Modèle par défaut** : `Qwen/Qwen2.5-7B-Instruct` (compatible API chat)
 
 ### Variables `.env.local`
 
 ```env
-GEMINI_API_KEY=votre_cle_gemini
+HUGGINGFACE_API_KEY=hf_votre_token
 # optionnel :
-GEMINI_MODEL=gemini-2.0-flash
+HUGGINGFACE_MODEL=Qwen/Qwen2.5-7B-Instruct
 ```
 
-Sans `GEMINI_API_KEY`, une **synthèse template** (français) est générée à partir des résultats.
+Alias accepté : `HF_TOKEN`, `HF_MODEL`.
+
+Sans `HUGGINGFACE_API_KEY`, une **synthèse template** (français) est générée à partir des résultats.
 
 ## Exemple `.env.local` complet
 
@@ -59,17 +62,40 @@ AI_WORKER_SECRET=patentiq-worker-dev-xxx
 
 EPO_OPS_CONSUMER_KEY=...
 EPO_OPS_CONSUMER_SECRET=...
-GEMINI_API_KEY=...
+HUGGINGFACE_API_KEY=hf_...
 ```
 
 Redémarrer le serveur après modification : `npm run dev:clean`
 
+## Types d'analyse (onglet IA projet)
+
+| Type | Provider | Description |
+|------|----------|-------------|
+| `novelty` | EPO + Hugging Face | Recherche d'antériorité brevets |
+| `semantic` | EPO + Hugging Face | Comparaison conceptuelle |
+| `similarity` | EPO + Hugging Face | Proximité avec le résumé d'invention |
+| `summarization` | Hugging Face | Résumé dossier ou document (CSV, TXT, PDF texte) |
+| `classification` | Hugging Face | Classes IPC/CPC suggérées |
+| `tag_suggestion` | Hugging Face | Tags recommandés pour le dossier |
+| Assistant PI (chat) | Hugging Face | Conversation multi-tours (bulle flottante sur la page projet) |
+| `report` | Agrégation | Rapport consolidé (bouton dédié) |
+
 ## Tester
 
-1. Projet → onglet **IA**
-2. Saisir : `membrane filtration water treatment`
-3. Sous le titre, vérifier : `brevets EPO OPS (gratuit) · synthèse Gemini (gratuit)`
-4. Lancer → résultats avec vrais numéros EP/US/WO et lien Espacenet dans le détail (`payload.espacenet_url`)
+1. Projet → onglet **IA** → choisir le type d'analyse
+2. Nouveauté : saisir `membrane filtration water treatment`
+3. Sous le titre, vérifier : `brevets EPO OPS (gratuit) · synthèse Hugging Face (Qwen2.5-7B-Instruct)`
+4. Lancer → résultats avec vrais numéros EP/US/WO et lien Espacenet (`payload.espacenet_url`)
+5. Résumé : sélectionner un PDF/CSV/TXT uploadé ou laisser vide pour résumer le dossier
+
+## Extraction PDF (résumé document)
+
+Les PDF avec **couche texte** sont parsés côté serveur via [unpdf](https://github.com/unjs/unpdf) (PDF.js) :
+
+- Taille max : **10 Mo**
+- Pages max extraites : **40** (puis troncature à 12 000 caractères pour l'IA)
+- PDF scannés (image seule) : message invitant à fournir TXT ou résumé d'invention
+- Pas besoin de clé Hugging Face pour l'extraction — seulement pour la synthèse
 
 ## Fallbacks
 
@@ -77,13 +103,37 @@ Redémarrer le serveur après modification : `npm run dev:clean`
 |-----------|--------------|
 | Pas de clés EPO | Stub (4 brevets simulés) |
 | EPO en erreur | Stub + note dans le résumé |
-| Pas de Gemini | Synthèse template en français |
-| Gemini en erreur | Synthèse template |
+| Pas de Hugging Face | Synthèse template en français |
+| Hugging Face en erreur | Synthèse template ou réponse indicative (Assistant) |
+
+## Erreur « not a chat model » (400)
+
+L'endpoint `router.huggingface.co/v1/chat/completions` n'accepte que des **modèles conversationnels**. Des modèles instruct classiques (ex. `mistralai/Mistral-7B-Instruct-v0.3`) renvoient une erreur 400.
+
+**Solution** : utilisez un modèle chat, par exemple :
+
+```env
+HUGGINGFACE_MODEL=Qwen/Qwen2.5-7B-Instruct
+```
+
+Activez aussi **Inference Providers** sur [huggingface.co/settings/inference-providers](https://huggingface.co/settings/inference-providers) pour votre compte.
+
+## Quota / erreurs Hugging Face (429, 503)
+
+Le tier gratuit a des **limites de débit**. Si vous voyez `429` ou `503` :
+
+1. Attendre quelques minutes (le client réessaie automatiquement)
+2. Vérifier le token sur [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)
+3. Changer de modèle via `HUGGINGFACE_MODEL` si le modèle par défaut est saturé
+4. PatentIQ bascule sur une **réponse indicative** (hors-ligne) pour l'Assistant PI et les synthèses en cas d'échec
+
+Les recherches **EPO OPS** (brevets) restent indépendantes du LLM.
 
 ## Limites & avertissement
 
 - Les résultats **ne remplacent pas** une recherche d'antériorité officielle par un conseiller PI.
 - EPO OPS : token renouvelé toutes les ~20 min (géré automatiquement).
+- PDF scannés sans OCR : extraction impossible (fournir TXT ou résumé manuel).
 - PatentsView USPTO : migré vers l'Open Data Portal (non intégré ici).
 
 ## Fichiers clés
@@ -92,6 +142,7 @@ Redémarrer le serveur après modification : `npm run dev:clean`
 |---------|------|
 | `src/lib/ai/run-search.ts` | Orchestration |
 | `src/lib/ai/providers/epo-ops.ts` | Recherche CQL EPO |
-| `src/lib/ai/providers/gemini.ts` | Synthèse IA |
+| `src/lib/ai/providers/synthesis.ts` | Synthèse nouveauté |
+| `src/lib/ai/llm-client.ts` | Appels Hugging Face chat completions |
 | `src/lib/ai/stub-engine.ts` | Fallback brevets |
 | `src/lib/ai/worker.ts` | Persistance Supabase |

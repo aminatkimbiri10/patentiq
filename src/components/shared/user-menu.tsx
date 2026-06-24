@@ -11,19 +11,25 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { signOut } from "@/lib/actions/auth";
+import { SignOutButton } from "@/components/auth/sign-out-button";
+import { getProfileHrefForRole } from "@/config/navigation";
+import type { AppRole } from "@/types/roles";
 
 export function UserMenu({
   email,
   name,
   initials,
   avatarUrl,
+  role,
 }: {
   email: string;
   name: string;
   initials: string;
   avatarUrl?: string | null;
+  role?: AppRole | null;
 }) {
+  const profileHref = getProfileHrefForRole(role ?? null);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -43,15 +49,13 @@ export function UserMenu({
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/dashboard/profile">Profil</Link>
+          <Link href={profileHref}>Profil</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/dashboard/security">Sécurité</Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="text-destructive focus:text-destructive"
-          onClick={() => signOut()}
-        >
-          Déconnexion
-        </DropdownMenuItem>
+        <SignOutButton />
       </DropdownMenuContent>
     </DropdownMenu>
   );

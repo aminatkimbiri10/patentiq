@@ -1,0 +1,40 @@
+{
+  "name": "PatentIQ — OMPIC Search Proxy (stub)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ompic-search",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-ompic",
+      "name": "Webhook POST",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "patentiq-ompic-search"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n 2.x — réponse = sortie de ce node (responseMode: lastNode)\nconst raw = $input.first().json;\nconst body = raw.body && typeof raw.body === 'object' ? raw.body : raw;\n\nconst query = String(body.query ?? '').trim();\nconst assetType = body.asset_type === 'patent' ? 'patent' : 'trademark';\n\nconst catalog = assetType === 'patent'\n  ? [\n      { title: 'Gourde Filtrante Pro', ref: 'MA-B-2021-000892', summary: 'Brevet filtration', score: 0.71 },\n      { title: 'Smart Filter Cap', ref: 'MA-B-2023-001104', summary: 'Brevet bouchon', score: 0.65 }\n    ]\n  : [\n      { title: 'Coca Cola', ref: 'MA-M-2019-004521', summary: 'Marque classe 32', score: 0.95 },\n      { title: 'Coca-Kola', ref: 'MA-M-2024-011203', summary: 'Marque similar', score: 0.88, opposition_eligible: true },\n      { title: 'Koka Cola', ref: 'MA-M-2023-008877', summary: 'Marque similar', score: 0.76, opposition_eligible: true }\n    ];\n\nconst q = query.toLowerCase();\nconst results = catalog.filter((item) => {\n  if (!q) return false;\n  const t = item.title.toLowerCase();\n  return t.includes(q) || q.includes('coca') && t.includes('cola') || q.includes('gourde') && t.includes('gourde');\n});\n\nreturn [{ json: { results } }];"
+      },
+      "id": "code-similarity",
+      "name": "Catalogue stub",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 300]
+    }
+  ],
+  "connections": {
+    "Webhook POST": {
+      "main": [[{ "node": "Catalogue stub", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

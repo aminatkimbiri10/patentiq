@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { processAiSearch } from "@/lib/ai/worker";
+import { queueAiSearchProcessing } from "@/lib/ai/trigger-worker";
 
-/** POST — crée une recherche IA et lance le worker stub */
+/** POST — crée une recherche IA et la met en file (worker async) */
 export async function POST(request: Request) {
   const supabase = await createClient();
   const {
@@ -14,11 +14,23 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { projectId, query, searchType = "novelty" } = body;
+  const {
+    projectId,
+    query,
+    searchType = "novelty",
+    documentId,
+    documentIds,
+  } = body;
 
   if (!projectId) {
     return NextResponse.json({ error: "projectId required" }, { status: 400 });
   }
+
+  const docIds: string[] = Array.isArray(documentIds)
+    ? documentIds.filter((id: unknown) => typeof id === "string")
+    : documentId
+      ? [documentId]
+      : [];
 
   const { data, error } = await supabase
     .from("ai_searches")
@@ -27,8 +39,9 @@ export async function POST(request: Request) {
       requested_by: user.id,
       search_type: searchType,
       status: "pending",
-      query,
-      parameters: { endpoint: "/api/ai/search" },
+      query: query ?? null,
+      document_ids: docIds,
+      parameters: { endpoint: "/api/ai/search", searchType, documentIds: docIds },
     })
     .select("id, status")
     .single();
@@ -37,20 +50,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
-  let workerResult = null;
-  try {
-    workerResult = await processAiSearch(data.id);
-  } catch {
-    workerResult = { ok: false, searchId: data.id, error: "Worker indisponible" };
-  }
+  queueAiSearchProcessing(data.id);
 
   return NextResponse.json({
     searchId: data.id,
-    status: workerResult?.ok ? "completed" : data.status,
-    resultsCount: workerResult?.ok ? workerResult.resultsCount : 0,
-    message: workerResult?.ok
-      ? `Analyse terminée — ${workerResult.resultsCount} document(s) trouvé(s)`
-      : "Recherche en file d'attente — le worker la traitera sous peu",
-    worker: workerResult,
+    status: "pending",
+    message: "Recherche en file d'attente — suivi automatique",
   });
 }

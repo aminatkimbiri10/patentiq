@@ -1,5 +1,14 @@
 import { NextResponse } from "next/server";
+import { runHealthCheck } from "@/lib/health/check";
 
 export async function GET() {
-  return NextResponse.json({ ok: true, service: "patent-platform" });
+  const report = await runHealthCheck();
+  const status = report.ok ? 200 : 503;
+
+  return NextResponse.json(report, {
+    status,
+    headers: {
+      "Cache-Control": "no-store",
+    },
+  });
 }

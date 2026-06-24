@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { getDocumentSignedUrl, deleteDocument } from "@/lib/actions/documents";
+import { DocumentVersionPanel } from "@/components/documents/document-version-panel";
+import { DocumentOcrButton } from "@/components/documents/document-ocr-button";
 import type { Document } from "@/types/database";
 
 function formatSize(bytes: number | null) {
@@ -21,10 +23,12 @@ export function DocumentList({
   documents,
   projectId,
   canDelete = true,
+  canUploadVersion = true,
 }: {
   documents: Document[];
   projectId: string;
   canDelete?: boolean;
+  canUploadVersion?: boolean;
 }) {
   async function handleDownload(id: string) {
     try {
@@ -50,7 +54,7 @@ export function DocumentList({
       <EmptyState
         icon={FileText}
         title="Aucun document"
-        description="Uploadez votre premier fichier pour démarrer le dossier."
+        description="Glissez un PDF, TXT ou image dans la zone ci-dessus. Les scans peuvent être lus via OCR local (gratuit)."
         className="py-12"
       />
     );
@@ -58,48 +62,80 @@ export function DocumentList({
 
   return (
     <ul className="card-elevated divide-y divide-border/60 overflow-hidden">
-      {documents.map((doc) => (
+      {documents.map((doc) => {
+        const ocrText = (doc.metadata as { ocr_text?: string } | null)?.ocr_text;
+        return (
         <li
           key={doc.id}
-          className="flex flex-wrap items-center gap-3 px-4 py-4 transition-colors hover:bg-muted/20 sm:flex-nowrap sm:gap-4"
+          className="px-4 py-4 transition-colors hover:bg-muted/20"
         >
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-            <FileText className="h-5 w-5 text-primary" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate font-medium">{doc.title}</p>
-            <p className="text-xs text-muted-foreground">
-              {doc.file_name} · {formatSize(doc.file_size)} ·{" "}
-              {formatDistanceToNow(new Date(doc.created_at), { addSuffix: true, locale: fr })}
-            </p>
-          </div>
-          <Badge variant="outline" className="shrink-0 capitalize">
-            {doc.status}
-          </Badge>
-          <div className="flex w-full shrink-0 justify-end gap-1 sm:w-auto">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handleDownload(doc.id)}
-              title="Télécharger"
-              className="h-9 w-9"
-            >
-              <Download className="h-4 w-4" />
-            </Button>
-            {canDelete && (
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+              <FileText className="h-5 w-5 text-primary" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-medium">{doc.title}</p>
+              <p className="truncate text-xs text-muted-foreground">{doc.file_name}</p>
+              <p className="text-xs text-muted-foreground">
+                {formatSize(doc.file_size)} ·{" "}
+                {formatDistanceToNow(new Date(doc.updated_at ?? doc.created_at), {
+                  addSuffix: true,
+                  locale: fr,
+                })}
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              {doc.version_number > 1 && (
+                <Badge variant="secondary" className="text-[10px]">
+                  v{doc.version_number}
+                </Badge>
+              )}
+              <Badge variant="outline" className="capitalize">
+                {doc.status}
+              </Badge>
+            </div>
+            <div className="flex flex-wrap gap-1 sm:ml-auto sm:justify-end">
+              <DocumentOcrButton
+                documentId={doc.id}
+                projectId={projectId}
+                mimeType={doc.mime_type}
+                hasOcrText={!!ocrText}
+              />
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => handleDelete(doc.id)}
-                title="Supprimer"
-                className="h-9 w-9 text-destructive hover:text-destructive"
+                onClick={() => handleDownload(doc.id)}
+                title="Télécharger (version actuelle)"
+                className="h-9 w-9"
               >
-                <Trash2 className="h-4 w-4" />
+                <Download className="h-4 w-4" />
               </Button>
-            )}
+              {canDelete && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleDelete(doc.id)}
+                  title="Supprimer"
+                  className="h-9 w-9 text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
           </div>
+          {ocrText && (
+            <p className="mt-2 text-[10px] text-muted-foreground">
+              Texte OCR disponible pour l&apos;IA ({ocrText.length} car.)
+            </p>
+          )}
+          <DocumentVersionPanel
+            doc={doc}
+            projectId={projectId}
+            canUploadVersion={canUploadVersion}
+          />
         </li>
-      ))}
+        );
+      })}
     </ul>
   );
 }

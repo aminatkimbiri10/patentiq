@@ -87,6 +87,42 @@ export async function updateProfile(
   return { success: true };
 }
 
+export async function updateNotificationPrefs(
+  _prev: ProfileActionState,
+  formData: FormData
+): Promise<ProfileActionState> {
+  const ctx = await requireUser();
+  const supabase = await createClient();
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("metadata")
+    .eq("id", ctx.user.id)
+    .single();
+
+  const existing =
+    profile?.metadata && typeof profile.metadata === "object"
+      ? (profile.metadata as Record<string, unknown>)
+      : {};
+
+  const emailEnabled = formData.get("email_enabled") === "on";
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      metadata: {
+        ...existing,
+        notification_prefs: { email_enabled: emailEnabled },
+      },
+    })
+    .eq("id", ctx.user.id);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/dashboard/profile");
+  return { success: true };
+}
+
 export async function uploadAvatar(
   _prev: AvatarActionState,
   formData: FormData

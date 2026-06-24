@@ -13,9 +13,9 @@ export function AuthCard({
   className?: string;
 }) {
   return (
-    <Card className={cn("glass-panel w-full border-0 shadow-soft rounded-2xl", className)}>
-      <CardHeader className="space-y-2 pb-2 text-center sm:text-left">
-        <CardTitle className="text-2xl font-bold">{title}</CardTitle>
+    <Card className={cn("w-full rounded-lg border bg-card shadow-sm", className)}>
+      <CardHeader className="space-y-1.5 pb-2 text-center sm:text-left">
+        <CardTitle className="text-xl font-semibold">{title}</CardTitle>
         {description && (
           <CardDescription className="text-base">{description}</CardDescription>
         )}

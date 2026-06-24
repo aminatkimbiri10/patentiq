@@ -1,10 +1,14 @@
+import Link from "next/link";
+import { UserCircle } from "lucide-react";
 import { requireUser } from "@/lib/auth/require-user";
 import { PageHeader } from "@/components/shared/page-header";
 import { AvatarUpload } from "@/components/profile/avatar-upload";
 import { ProfileForm } from "@/components/profile/profile-form";
+import { NotificationPrefsForm } from "@/components/profile/notification-prefs-form";
+import { parseNotificationPrefs } from "@/lib/notifications/prefs";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { getAvatarSignedUrl } from "@/lib/storage/avatar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";import { getAvatarSignedUrl } from "@/lib/storage/avatar";
 import { ROLE_LABELS } from "@/types/roles";
 import type { AppRole } from "@/types/roles";
 
@@ -34,7 +38,11 @@ export default async function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <PageHeader title="Mon profil" description="Gérez vos informations et votre photo." />
+      <PageHeader
+        icon={UserCircle}
+        title="Mon profil"
+        description="Gérez vos informations et votre photo."
+      />
 
       <Card className="card-elevated border-0 shadow-none">
         <CardContent className="flex flex-col items-center gap-4 pt-6 sm:flex-row sm:items-start sm:gap-8">
@@ -54,6 +62,20 @@ export default async function ProfilePage() {
       </Card>
 
       <ProfileForm email={ctx.user.email} profile={p} />
-    </div>
-  );
+      <NotificationPrefsForm prefs={parseNotificationPrefs(p?.metadata)} />
+
+      <Card className="card-elevated border-0 shadow-none">
+        <CardContent className="flex flex-col gap-3 pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="font-medium">Sécurité du compte</p>
+            <p className="text-sm text-muted-foreground">
+              Confirmation email et authentification à deux facteurs (2FA).
+            </p>
+          </div>
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/dashboard/security">Paramètres sécurité</Link>
+          </Button>
+        </CardContent>
+      </Card>
+    </div>  );
 }

@@ -1,17 +1,35 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Scale, Activity, ListChecks, FileText } from "lucide-react";
+import { CpiCaseTabs } from "@/components/cpi/cpi-case-tabs";
+import {
+  buildEffectiveChecklistState,
+  loadAutoChecklistContext,
+} from "@/lib/checklists/load-effective-checklist";
+import { getPatentClaimsDraft } from "@/lib/actions/patent-claims";
+import { getPatentDraft } from "@/lib/actions/patent-draft";
+import { listPatentDraftVersions } from "@/lib/actions/patent-draft-history";
+import {
+  parseMarqueLifecycle,
+  defaultMarqueLifecycle,
+} from "@/lib/workflow/marque-lifecycle";
+import {
+  parseBrevetLifecycle,
+  defaultBrevetLifecycle,
+} from "@/lib/workflow/brevet-lifecycle";
+import {
+  parseDesignLifecycle,
+  defaultDesignLifecycle,
+} from "@/lib/workflow/design-lifecycle";
 import { requireUser } from "@/lib/auth/require-user";
 import { createClient } from "@/lib/supabase/server";
-import { PageHeader } from "@/components/shared/page-header";
+import { ProjectDetailHeader } from "@/components/project/project-detail-header";
 import { ProjectStatusBadge } from "@/components/shared/status-badge";
-import { CommentThread, type CommentWithAuthor } from "@/components/dashboard/comment-thread";
+import { ProjectStatusBanner } from "@/components/dashboard/project-status-banner";
 import { ProjectStatusForm } from "@/components/dashboard/project-status-form";
-import { DocumentList } from "@/components/documents/document-list";
-import { TaskList, type ProjectTask } from "@/components/dashboard/task-list";
-import { ProjectTimeline, type ProjectUpdate } from "@/components/dashboard/project-timeline";
+import type { CommentWithAuthor } from "@/components/dashboard/comment-thread";
+import type { ProjectTask } from "@/components/dashboard/task-list";
+import type { ProjectMessage } from "@/lib/actions/messages";
+import type { ProjectUpdate } from "@/components/dashboard/project-timeline";
 import {
-  ExpertRecommendationsPanel,
   type ExpertRecommendationRow,
 } from "@/components/cpi/expert-recommendations-panel";
 import {
@@ -19,9 +37,9 @@ import {
   getStatusOptions,
   resolveStatusChangeMode,
 } from "@/lib/workflow/status-permissions";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { Document, Project } from "@/types/database";
+import { getAiProviderLabel } from "@/lib/ai/config";
+import { getProjectUnreadMessageCount } from "@/lib/messages/read-cursor";
+import type { Document, Project, AiSearch, AiResult } from "@/types/database";
 
 export default async function CpiCaseDetailPage({ params }: { params: { id: string } }) {
   const ctx = await requireUser();
@@ -29,13 +47,13 @@ export default async function CpiCaseDetailPage({ params }: { params: { id: stri
 
   const { data: project } = await supabase
     .from("projects")
-    .select("*")
+    .select("*, categories(name, slug)")
     .eq("id", params.id)
     .single();
 
   if (!project) notFound();
 
-  const p = project as Project;
+  const p = project as Project & { categories?: { name: string; slug: string } | null };
 
   const [
     { data: comments },
@@ -43,7 +61,12 @@ export default async function CpiCaseDetailPage({ params }: { params: { id: stri
     { data: tasks },
     { data: updates },
     { data: ownerProfile },
-    { data: expertProfile },
+    { data: projectMessages },
+    { data: aiSearches },
+    patentClaims,
+    patentDraft,
+    draftVersions,
+    unreadMessages,
   ] = await Promise.all([
     supabase
       .from("project_comments")
@@ -58,7 +81,7 @@ export default async function CpiCaseDetailPage({ params }: { params: { id: stri
       .order("created_at", { ascending: false }),
     supabase
       .from("project_tasks")
-      .select("id, title, description, status, priority, due_at, project_id")
+      .select("id, title, description, status, priority, due_at, project_id, created_by, assigned_to")
       .eq("project_id", params.id)
       .order("created_at", { ascending: false }),
     supabase
@@ -68,10 +91,64 @@ export default async function CpiCaseDetailPage({ params }: { params: { id: stri
       .order("created_at", { ascending: false })
       .limit(30),
     supabase.from("profiles").select("full_name, email").eq("id", p.owner_id).single(),
-    p.expert_id
-      ? supabase.from("profiles").select("full_name").eq("id", p.expert_id).single()
-      : Promise.resolve({ data: null }),
+    supabase
+      .from("messages")
+      .select("id, body, created_at, sender_id, profiles(full_name, email)")
+      .eq("project_id", params.id)
+      .eq("message_type", "project_thread")
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("ai_searches")
+      .select("*")
+      .eq("project_id", params.id)
+      .order("created_at", { ascending: false }),
+    getPatentClaimsDraft(params.id),
+    getPatentDraft(params.id),
+    listPatentDraftVersions(params.id),
+    getProjectUnreadMessageCount(params.id, ctx.user.id),
   ]);
+
+  const marqueLifecycle =
+    parseMarqueLifecycle(p.metadata) ?? defaultMarqueLifecycle();
+  const brevetLifecycle =
+    parseBrevetLifecycle(p.metadata) ?? defaultBrevetLifecycle();
+  const designLifecycle =
+    parseDesignLifecycle(p.metadata) ?? defaultDesignLifecycle();
+
+  const searchIds = (aiSearches ?? []).map((s) => s.id);
+  let aiResults: AiResult[] = [];
+  if (searchIds.length > 0) {
+    const { data: results } = await supabase
+      .from("ai_results")
+      .select("*")
+      .in("search_id", searchIds)
+      .order("rank", { ascending: true });
+    aiResults = (results ?? []) as AiResult[];
+  }
+
+  const resultsBySearch = aiResults.reduce<Record<string, AiResult[]>>((acc, r) => {
+    if (!acc[r.search_id]) acc[r.search_id] = [];
+    acc[r.search_id].push(r);
+    return acc;
+  }, {});
+
+  const mappedMessages: ProjectMessage[] = (projectMessages ?? []).map((m) => {
+    const row = m as {
+      id: string;
+      body: string;
+      created_at: string;
+      sender_id: string;
+      profiles: ProjectMessage["profiles"] | NonNullable<ProjectMessage["profiles"]>[];
+    };
+    const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
+    return {
+      id: row.id,
+      body: row.body,
+      created_at: row.created_at,
+      sender_id: row.sender_id,
+      profiles: profile ?? null,
+    };
+  });
 
   const mappedComments: CommentWithAuthor[] = (comments ?? []).map((c) => {
     const row = c as CommentWithAuthor & {
@@ -125,111 +202,97 @@ export default async function CpiCaseDetailPage({ params }: { params: { id: stri
   });
 
   const ownerName = ownerProfile?.full_name ?? ownerProfile?.email ?? "Porteur";
-  const expertName = expertProfile?.full_name ?? (p.expert_id ? "Assigné" : null);
+  const pendingTasks = (tasks ?? []).filter(
+    (t) => t.status !== "completed" && t.status !== "cancelled"
+  ).length;
+  const pendingAi = (aiSearches ?? []).filter(
+    (s) => s.status === "pending" || s.status === "processing"
+  ).length;
+
+  const activeDocCount = (documents ?? []).filter((d) => d.status === "active").length;
+  const autoCtx = await loadAutoChecklistContext(supabase, params.id, {
+    aiSearches: (aiSearches ?? []) as AiSearch[],
+    patentDraft,
+    patentClaims,
+    activeDocumentCount: activeDocCount,
+  });
+  const checklist = buildEffectiveChecklistState(p.categories?.slug, p.metadata, autoCtx);
 
   return (
-    <div className="space-y-6">
-      <Button variant="ghost" size="sm" className="-ml-2 text-muted-foreground" asChild>
-        <Link href="/cpi/cases">
-          <ArrowLeft className="mr-1 h-4 w-4" />
-          Dossiers
-        </Link>
-      </Button>
-
-      <PageHeader title={p.title} description={p.reference_code ?? "Revue juridique CPI"}>
+    <div className="space-y-5">
+      <ProjectDetailHeader
+        backHref="/cpi/cases"
+        backLabel="Dossiers CPI"
+        category={p.categories?.name ?? "Revue juridique"}
+        title={p.title}
+        referenceCode={p.reference_code}
+        lastActivityAt={p.last_activity_at}
+        partyLabel="Porteur"
+        partyName={ownerName}
+      >
         <ProjectStatusBadge status={p.status} />
-      </PageHeader>
+      </ProjectDetailHeader>
 
-      <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-        <span>
-          Porteur : <span className="font-medium text-foreground">{ownerName}</span>
-        </span>
-        {expertName && (
-          <span>
-            Expert : <span className="font-medium text-foreground">{expertName}</span>
-          </span>
-        )}
-      </div>
+      <ProjectStatusBanner
+        status={p.status}
+        partyLabel="Porteur"
+        partyName={ownerName}
+        checklistPercent={checklist.progress.percent}
+        pendingTasks={pendingTasks}
+        pendingAi={pendingAi}
+        unreadMessages={unreadMessages}
+      />
 
       {statusMode === "cpi" && (
-        <Card className="card-elevated border-0 shadow-none">
-          <CardContent className="pt-6">
-            <ProjectStatusForm
-              projectId={p.id}
-              currentStatus={p.status}
-              allowedStatuses={getStatusOptions("cpi", p.status)}
-              mode="cpi"
-            />
-          </CardContent>
-        </Card>
+        <div className="rounded-lg border border-border/60 bg-muted/25 px-4 py-4 sm:px-5">
+          <ProjectStatusForm
+            projectId={p.id}
+            currentStatus={p.status}
+            allowedStatuses={getStatusOptions("cpi", p.status)}
+            mode="cpi"
+          />
+        </div>
       )}
 
-      <ExpertRecommendationsPanel
+      <CpiCaseTabs
         projectId={p.id}
         projectTitle={p.title}
         referenceCode={p.reference_code}
-        recommendations={expertRecommendations}
+        inventionSummary={p.invention_summary}
+        needDescription={p.need_description}
+        ownerName={ownerName}
+        documents={(documents ?? []) as Document[]}
+        checklistTemplate={checklist.template}
+        checklistState={checklist.effectiveState}
+        checklistManualChecked={checklist.manualState.checked}
+        checklistAutoChecked={checklist.autoChecked}
+        checklistReadOnly={statusMode !== "cpi"}
+        canAssignTasks={statusMode === "cpi"}
+        holderId={p.owner_id}
+        aiSearches={(aiSearches ?? []) as AiSearch[]}
+        resultsBySearch={resultsBySearch}
+        aiProviderLabel={getAiProviderLabel()}
+        tasks={(tasks ?? []) as ProjectTask[]}
+        updates={(updates ?? []) as ProjectUpdate[]}
+        messages={mappedMessages}
+        currentUserId={ctx.user.id}
+        canPostLegal={canPostLegal}
+        legalComments={legalComments}
+        allComments={mappedComments}
+        expertRecommendations={expertRecommendations}
+        showCpiTaskForm={statusMode === "cpi"}
+        statusModeCpi={statusMode === "cpi"}
+        categorySlug={p.categories?.slug}
+        patentClaims={patentClaims}
+        patentDraft={patentDraft}
+        draftVersions={draftVersions}
+        marqueLifecycle={marqueLifecycle}
+        brevetLifecycle={brevetLifecycle}
+        designLifecycle={designLifecycle}
+        checklistPercent={checklist.progress.percent}
+        openTasks={pendingTasks}
+        unreadMessages={unreadMessages}
       />
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="card-elevated border-0 shadow-none">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Invention</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground whitespace-pre-wrap">
-            {p.invention_summary || "—"}
-          </CardContent>
-        </Card>
-        <Card className="card-elevated border-0 shadow-none">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Besoin PI</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground whitespace-pre-wrap">
-            {p.need_description || "—"}
-          </CardContent>
-        </Card>
-      </div>
-
-      <section className="space-y-4">
-        <h2 className="flex items-center gap-2 text-lg font-semibold">
-          <FileText className="h-5 w-5 text-primary" />
-          Documents
-        </h2>
-        <DocumentList
-          documents={(documents ?? []) as Document[]}
-          projectId={p.id}
-          canDelete={false}
-        />
-      </section>
-
-      <section className="space-y-4">
-        <h2 className="flex items-center gap-2 text-lg font-semibold">
-          <ListChecks className="h-5 w-5 text-primary" />
-          Tâches
-        </h2>
-        <TaskList projectId={p.id} tasks={(tasks ?? []) as ProjectTask[]} readOnly />
-      </section>
-
-      <section className="space-y-4">
-        <h2 className="flex items-center gap-2 text-lg font-semibold">
-          <Activity className="h-5 w-5 text-primary" />
-          Historique
-        </h2>
-        <ProjectTimeline updates={(updates ?? []) as ProjectUpdate[]} />
-      </section>
-
-      <section className="space-y-4">
-        <h2 className="flex items-center gap-2 text-lg font-semibold">
-          <Scale className="h-5 w-5 text-primary" />
-          Avis et commentaires juridiques
-        </h2>
-        <CommentThread
-          projectId={p.id}
-          comments={legalComments.length ? legalComments : mappedComments}
-          canPostLegal={canPostLegal}
-          legalOnly={legalComments.length > 0}
-        />
-      </section>
     </div>
   );
 }

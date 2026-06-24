@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/shared/page-header";
-import { ProjectCard } from "@/components/dashboard/project-card";
+import { ProjectTable } from "@/components/dashboard/project-card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { FolderKanban } from "lucide-react";
 import type { Project } from "@/types/database";
@@ -19,7 +19,11 @@ export default async function AdminProjectsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Tous les projets" description="Vue globale des dossiers sur la plateforme." />
+      <PageHeader
+        icon={FolderKanban}
+        title="Tous les projets"
+        description="Vue globale des dossiers sur la plateforme."
+      />
       {items.length === 0 ? (
         <EmptyState
           icon={FolderKanban}
@@ -27,11 +31,7 @@ export default async function AdminProjectsPage() {
           description="Les projets créés par les utilisateurs apparaîtront ici."
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {items.map((p) => (
-            <ProjectCard key={p.id} project={p} href={`/admin/projects/${p.id}`} />
-          ))}
-        </div>
+        <ProjectTable projects={items} hrefFor={(id) => `/admin/projects/${id}`} />
       )}
     </div>
   );

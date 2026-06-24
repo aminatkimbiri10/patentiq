@@ -1,41 +1,33 @@
 import type { LucideIcon } from "lucide-react";
-import { cn } from "@/lib/utils/cn";
 
-const accents = [
-  "from-blue-500/15 to-blue-600/5 text-blue-600 dark:text-blue-400",
-  "from-violet-500/15 to-violet-600/5 text-violet-600 dark:text-violet-400",
-  "from-emerald-500/15 to-emerald-600/5 text-emerald-600 dark:text-emerald-400",
-  "from-amber-500/15 to-amber-600/5 text-amber-600 dark:text-amber-400",
-];
-
+/** Bandeau KPI horizontal — style console entreprise */
 export function KpiCards({
   items,
 }: {
-  items: { title: string; value: string | number; icon: LucideIcon; hint?: string }[];
+  items: { title: string; value: string | number; icon?: LucideIcon; hint?: string }[];
 }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {items.map((item, i) => {
+    <div className="enterprise-kpi">
+      {items.map((item) => {
         const Icon = item.icon;
         return (
-          <div key={item.title} className="card-elevated group overflow-hidden p-0">
-            <div className="flex items-start gap-4 p-5">
-              <div
-                className={cn(
-                  "rounded-xl bg-gradient-to-br p-3",
-                  accents[i % accents.length]
-                )}
-              >
-                <Icon className="h-5 w-5" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-muted-foreground">{item.title}</p>
-                <p className="mt-1 text-2xl font-bold tracking-tight">{item.value}</p>
-                {item.hint && (
-                  <p className="mt-1 truncate text-xs text-muted-foreground">{item.hint}</p>
-                )}
-              </div>
+          <div key={item.title} className="enterprise-kpi-item group">
+            <div className="flex items-start justify-between gap-3">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                {item.title}
+              </p>
+              {Icon && (
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
+                  <Icon className="h-4 w-4" />
+                </span>
+              )}
             </div>
+            <p className="mt-2 text-2xl font-semibold tabular-nums tracking-tight text-foreground">
+              {item.value}
+            </p>
+            {item.hint && (
+              <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">{item.hint}</p>
+            )}
           </div>
         );
       })}

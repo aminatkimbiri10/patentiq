@@ -11,8 +11,16 @@ export type ProjectUpdate = {
   created_at: string;
 };
 
-export function ProjectTimeline({ updates }: { updates: ProjectUpdate[] }) {
-  if (!updates.length) {
+export function ProjectTimeline({
+  updates,
+  limit,
+}: {
+  updates: ProjectUpdate[];
+  limit?: number;
+}) {
+  const items = limit ? updates.slice(0, limit) : updates;
+
+  if (!items.length) {
     return (
       <EmptyState
         icon={Activity}
@@ -25,9 +33,9 @@ export function ProjectTimeline({ updates }: { updates: ProjectUpdate[] }) {
 
   return (
     <ol className="relative space-y-0">
-      {updates.map((u, i) => (
+      {items.map((u, i) => (
         <li key={u.id} className="relative flex gap-4 pb-8 last:pb-0">
-          {i < updates.length - 1 && (
+          {i < items.length - 1 && (
             <span className="absolute left-[15px] top-8 h-full w-px bg-border" />
           )}
           <span className="relative z-10 mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-primary/30 bg-primary/10">

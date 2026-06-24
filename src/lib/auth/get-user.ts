@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile, UserRole } from "@/types/database";
 import { parseRoleFromJoin } from "@/lib/auth/parse-role";
@@ -15,6 +16,15 @@ export type UserContext = {
   primaryRole: AppRole | null;
 };
 
+export function userHasRole(ctx: UserContext, role: AppRole): boolean {
+  return ctx.roles.some((ur) => {
+    const name = parseRoleFromJoin(
+      ur.roles as { role_name: AppRole } | { role_name: AppRole }[] | undefined
+    );
+    return name === role;
+  });
+}
+
 export async function getUser(): Promise<AuthUser | null> {
   const supabase = await createClient();
   const {
@@ -26,7 +36,7 @@ export async function getUser(): Promise<AuthUser | null> {
   return { id: user.id, email: user.email };
 }
 
-export async function getUserContext(): Promise<UserContext | null> {
+export const getUserContext = cache(async (): Promise<UserContext | null> => {
   const supabase = await createClient();
   const {
     data: { user },
@@ -34,16 +44,14 @@ export async function getUserContext(): Promise<UserContext | null> {
 
   if (!user?.email) return null;
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
-
-  const { data: roles } = await supabase
-    .from("user_roles")
-    .select("*, roles(*)")
-    .eq("user_id", user.id);
+  const [{ data: profile }, { data: roles }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("id, full_name, avatar_url, onboarding_completed, created_at, updated_at")
+      .eq("id", user.id)
+      .single(),
+    supabase.from("user_roles").select("*, roles(*)").eq("user_id", user.id),
+  ]);
 
   const primary = roles?.find((r) => r.is_primary);
   const primaryRole = parseRoleFromJoin(
@@ -56,4 +64,4 @@ export async function getUserContext(): Promise<UserContext | null> {
     roles: (roles ?? []) as UserRole[],
     primaryRole,
   };
-}
+});

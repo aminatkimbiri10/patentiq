@@ -24,6 +24,26 @@ export type AiSearchStatus =
   | "failed"
   | "cancelled";
 
+export type AiChatRole = "user" | "assistant";
+
+export interface AiChatSession {
+  id: string;
+  project_id: string;
+  user_id: string;
+  title: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AiChatMessage {
+  id: string;
+  session_id: string;
+  role: AiChatRole;
+  content: string;
+  metadata: Json;
+  created_at: string;
+}
+
 export type AiSearchType =
   | "novelty"
   | "semantic"
@@ -32,7 +52,8 @@ export type AiSearchType =
   | "classification"
   | "tag_suggestion"
   | "assistant"
-  | "report";
+  | "report"
+  | "fto";
 
 export interface Profile {
   id: string;
@@ -111,6 +132,21 @@ export interface Document {
   metadata: Json;
   created_at: string;
   updated_at: string;
+}
+
+export interface DocumentVersion {
+  id: string;
+  document_id: string;
+  version_number: number;
+  file_name: string;
+  file_path: string;
+  bucket_id: string;
+  mime_type: string | null;
+  file_size: number | null;
+  uploaded_by: string;
+  change_note: string | null;
+  metadata: Json;
+  created_at: string;
 }
 
 export interface Notification {

@@ -16,6 +16,7 @@ export default async function AdminUsersPage() {
   return (
     <div className="space-y-6">
       <PageHeader
+        icon={Users}
         title="Utilisateurs"
         description="Gestion des comptes et attribution du rôle principal."
       />

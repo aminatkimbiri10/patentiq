@@ -47,6 +47,7 @@ export default async function ExpertRecommendationsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
+        icon={ClipboardList}
         title="Recommandations"
         description="Historique de vos avis structurés transmis aux conseillers PI."
       />

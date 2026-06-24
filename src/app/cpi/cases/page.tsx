@@ -1,7 +1,7 @@
 import { requireUser } from "@/lib/auth/require-user";
 import { getCpiProjects } from "@/lib/cpi/queries";
 import { PageHeader } from "@/components/shared/page-header";
-import { ProjectCard } from "@/components/dashboard/project-card";
+import { ProjectTable } from "@/components/dashboard/project-card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Briefcase } from "lucide-react";
 
@@ -14,6 +14,7 @@ export default async function CpiCasesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
+        icon={Briefcase}
         title="Mes dossiers"
         description="Projets assignés pour revue et accompagnement CPI."
       />
@@ -24,11 +25,7 @@ export default async function CpiCasesPage() {
           description="Les projets qui vous sont confiés apparaîtront ici."
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {items.map((p) => (
-            <ProjectCard key={p.id} project={p} href={`/cpi/cases/${p.id}`} />
-          ))}
-        </div>
+        <ProjectTable projects={items} hrefFor={(id) => `/cpi/cases/${id}`} />
       )}
     </div>
   );

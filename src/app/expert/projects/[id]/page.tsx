@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, FileText, FlaskConical } from "lucide-react";
+import { ArrowLeft, FileText, FlaskConical, Mail } from "lucide-react";
+import { ProjectMessageThread } from "@/components/messages/project-message-thread";
+import type { ProjectMessage } from "@/lib/actions/messages";
 import { requireUser } from "@/lib/auth/require-user";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/shared/page-header";
@@ -14,7 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Document, Project } from "@/types/database";
 
 export default async function ExpertProjectDetailPage({ params }: { params: { id: string } }) {
-  await requireUser();
+  const ctx = await requireUser();
   const supabase = await createClient();
 
   const { data: project } = await supabase
@@ -34,7 +36,8 @@ export default async function ExpertProjectDetailPage({ params }: { params: { id
 
   if (!isExpert || !isProjectExpert) notFound();
 
-  const [{ data: comments }, { data: documentsRaw }] = await Promise.all([
+  const [{ data: comments }, { data: documentsRaw }, { data: projectMessages }] =
+    await Promise.all([
     supabase
       .from("project_comments")
       .select("id, body, created_at, author_id, is_legal, metadata, profiles(full_name, email)")
@@ -46,6 +49,12 @@ export default async function ExpertProjectDetailPage({ params }: { params: { id
       .eq("project_id", params.id)
       .neq("status", "deleted")
       .order("created_at", { ascending: false }),
+    supabase
+      .from("messages")
+      .select("id, body, created_at, sender_id, profiles(full_name, email)")
+      .eq("project_id", params.id)
+      .eq("message_type", "project_thread")
+      .order("created_at", { ascending: true }),
   ]);
 
   const mappedComments: CommentWithAuthor[] = (comments ?? []).map((c) => {
@@ -68,6 +77,24 @@ export default async function ExpertProjectDetailPage({ params }: { params: { id
 
   const documents = (documentsRaw ?? []) as Document[];
 
+  const mappedMessages: ProjectMessage[] = (projectMessages ?? []).map((m) => {
+    const row = m as {
+      id: string;
+      body: string;
+      created_at: string;
+      sender_id: string;
+      profiles: ProjectMessage["profiles"] | NonNullable<ProjectMessage["profiles"]>[];
+    };
+    const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
+    return {
+      id: row.id,
+      body: row.body,
+      created_at: row.created_at,
+      sender_id: row.sender_id,
+      profiles: profile ?? null,
+    };
+  });
+
   return (
     <div className="space-y-6">
       <Button variant="ghost" size="sm" className="-ml-2 text-muted-foreground" asChild>
@@ -77,7 +104,7 @@ export default async function ExpertProjectDetailPage({ params }: { params: { id
         </Link>
       </Button>
 
-      <PageHeader title={p.title} description={p.reference_code ?? "Analyse technique"}>
+      <PageHeader icon={FlaskConical} title={p.title} description={p.reference_code ?? "Analyse technique"}>
         <ProjectStatusBadge status={p.status} />
       </PageHeader>
 
@@ -106,6 +133,18 @@ export default async function ExpertProjectDetailPage({ params }: { params: { id
           Documents
         </h2>
         <DocumentList documents={documents} projectId={p.id} canDelete={false} />
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="flex items-center gap-2 text-lg font-semibold">
+          <Mail className="h-5 w-5 text-primary" />
+          Messages dossier
+        </h2>
+        <ProjectMessageThread
+          projectId={p.id}
+          messages={mappedMessages}
+          currentUserId={ctx.user.id}
+        />
       </section>
 
       <ExpertRecommendationForm projectId={p.id} />

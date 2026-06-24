@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, FolderKanban } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { ProjectStatusBadge } from "@/components/shared/status-badge";
@@ -40,7 +40,7 @@ export default async function AdminProjectDetailPage({ params }: { params: { id:
         </Link>
       </Button>
 
-      <PageHeader title={p.title} description={`Admin · ${p.reference_code ?? p.id.slice(0, 8)}`}>
+      <PageHeader icon={FolderKanban} title={p.title} description={`Admin · ${p.reference_code ?? p.id.slice(0, 8)}`}>
         <ProjectStatusBadge status={p.status} />
       </PageHeader>
 

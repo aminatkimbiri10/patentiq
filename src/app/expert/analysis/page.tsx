@@ -1,5 +1,5 @@
 import { PageHeader } from "@/components/shared/page-header";
-import { ProjectCard } from "@/components/dashboard/project-card";
+import { ProjectTable } from "@/components/dashboard/project-card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { requireUser } from "@/lib/auth/require-user";
 import { createClient } from "@/lib/supabase/server";
@@ -24,6 +24,7 @@ export default async function ExpertAnalysisPage() {
   return (
     <div className="space-y-6">
       <PageHeader
+        icon={Microscope}
         title="Analyses techniques"
         description="Dossiers nécessitant votre expertise — le CPI attend votre avis."
       />
@@ -34,11 +35,7 @@ export default async function ExpertAnalysisPage() {
           description="Les projets passés en « Revue expert » apparaîtront ici."
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {items.map((p) => (
-            <ProjectCard key={p.id} project={p} href={`/expert/projects/${p.id}`} />
-          ))}
-        </div>
+        <ProjectTable projects={items} hrefFor={(id) => `/expert/projects/${id}`} />
       )}
     </div>
   );

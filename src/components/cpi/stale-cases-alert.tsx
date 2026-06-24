@@ -8,7 +8,7 @@ export function StaleCasesAlert({ projects }: { projects: Project[] }) {
   if (!projects.length) return null;
 
   return (
-    <div className="card-elevated flex flex-col gap-3 border-amber-500/30 bg-amber-500/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="enterprise-panel flex flex-col gap-3 border-amber-500/40 bg-amber-50/50 px-5 py-4 dark:bg-amber-950/20 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex gap-3">
         <AlertTriangle className="h-5 w-5 shrink-0 text-amber-600" />
         <div>

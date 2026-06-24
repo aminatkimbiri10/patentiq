@@ -5,7 +5,8 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/auth/require-user";
 import { logAction } from "@/lib/audit/log-action";
-import { createNotification } from "@/lib/notifications/create";
+import { notifyUser } from "@/lib/notifications/notify-user";
+import { projectUrlForUser } from "@/lib/notifications/project-url";
 
 const recommendationSchema = z.object({
   project_id: z.string().uuid(),
@@ -60,7 +61,7 @@ export async function submitExpertRecommendation(
 
   const { data: project } = await supabase
     .from("projects")
-    .select("title, reference_code, assigned_to, owner_id")
+    .select("title, reference_code, assigned_to, owner_id, expert_id")
     .eq("id", parsed.data.project_id)
     .single();
 
@@ -103,16 +104,19 @@ export async function submitExpertRecommendation(
   );
 
   for (const userId of Array.from(new Set(notifyTargets))) {
-    await createNotification({
+    await notifyUser({
       userId,
       projectId: parsed.data.project_id,
       notificationType: "info",
       title: "Recommandation expert disponible",
       body: `L'expert a rendu son avis sur « ${project?.title ?? "le projet"} » (${ref}).`,
-      actionUrl:
-        userId === project?.assigned_to
-          ? `/cpi/cases/${parsed.data.project_id}`
-          : `/dashboard/projects/${parsed.data.project_id}`,
+      actionUrl: project
+        ? projectUrlForUser(parsed.data.project_id, userId, {
+            owner_id: project.owner_id as string,
+            assigned_to: project.assigned_to as string | null,
+            expert_id: project.expert_id as string | null,
+          })
+        : `/dashboard/projects/${parsed.data.project_id}`,
     });
   }
 

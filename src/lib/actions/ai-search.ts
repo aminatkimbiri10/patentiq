@@ -29,5 +29,6 @@ export async function createAiSearchPlaceholder(
   if (error) return { error: error.message };
 
   revalidatePath(`/dashboard/projects/${projectId}`);
+  revalidatePath(`/cpi/cases/${projectId}`);
   return { searchId: data.id, status: "pending" as const };
 }

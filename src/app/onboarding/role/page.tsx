@@ -15,10 +15,10 @@ const roleDescriptions: Record<(typeof APP_ROLES)[number], string> = {
 export const metadata = { title: "Choisir votre rôle" };
 
 export default async function OnboardingRolePage() {
-  await requireUser();
+  await requireUser({ allowIncompleteOnboarding: true });
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-mesh p-4 sm:p-8">
+    <div className="flex min-h-screen items-center justify-center bg-background p-4 sm:p-8">
       <div className="w-full max-w-lg animate-fade-in">
         <AuthCard
           title="Votre profil"

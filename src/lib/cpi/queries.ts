@@ -57,8 +57,7 @@ const ACTIVE_STATUSES: ProjectStatus[] = [
 const STALE_STATUSES: ProjectStatus[] = ["awaiting_documents", "expert_review"];
 const STALE_DAYS = 7;
 
-export async function getCpiStats(userId: string): Promise<CpiStats> {
-  const projects = await getCpiProjects(userId);
+export function computeCpiStats(projects: Project[]): CpiStats {
   const now = Date.now();
   const staleMs = STALE_DAYS * 24 * 60 * 60 * 1000;
 
@@ -96,4 +95,9 @@ export async function getCpiStats(userId: string): Promise<CpiStats> {
     staleCount,
     byStatus,
   };
+}
+
+export async function getCpiStats(userId: string): Promise<CpiStats> {
+  const projects = await getCpiProjects(userId);
+  return computeCpiStats(projects);
 }

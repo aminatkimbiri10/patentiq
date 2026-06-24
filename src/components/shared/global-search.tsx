@@ -5,10 +5,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FileText, FolderKanban, ListChecks, Loader2, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { SearchKbdHint } from "@/components/shared/search-kbd-hint";
 import { cn } from "@/lib/utils/cn";
 
 type SearchResults = {
-  projects: { id: string; title: string; reference_code: string | null; status: string }[];
+  projects: { id: string; title: string; reference_code: string | null; status: string; href: string }[];
   documents: {
     id: string;
     title: string;
@@ -16,6 +17,7 @@ type SearchResults = {
     project_id: string;
     projectTitle?: string;
     projectRef?: string | null;
+    href: string;
   }[];
   tasks: {
     id: string;
@@ -24,6 +26,7 @@ type SearchResults = {
     project_id: string;
     projectTitle?: string;
     projectRef?: string | null;
+    href: string;
   }[];
 };
 
@@ -34,7 +37,21 @@ export function GlobalSearch({ className }: { className?: string }) {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<SearchResults | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        inputRef.current?.focus();
+        setOpen(true);
+      }
+      if (e.key === "Escape") setOpen(false);
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   const search = useCallback(async (term: string) => {
     if (term.trim().length < 2) {
@@ -86,6 +103,7 @@ export function GlobalSearch({ className }: { className?: string }) {
     <div ref={wrapRef} className={cn("relative min-w-0 flex-1", className)}>
       <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <Input
+        ref={inputRef}
         value={q}
         onChange={(e) => {
           setQ(e.target.value);
@@ -98,11 +116,15 @@ export function GlobalSearch({ className }: { className?: string }) {
           }
         }}
         placeholder="Rechercher projets, documents…"
-        className="h-10 rounded-xl border-border/60 bg-muted/40 pl-10 focus-visible:bg-background"
+        aria-label="Recherche globale"
+        className="h-10 rounded-2xl border-border/50 bg-muted/30 pl-10 pr-3 text-sm shadow-inner transition-colors focus-visible:border-primary/30 focus-visible:bg-background focus-visible:ring-2 focus-visible:ring-primary/20 sm:pr-20 sm:text-base"
       />
+      <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1">
+        <SearchKbdHint />
+      </div>
 
       {open && q.trim().length >= 2 && (
-        <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-xl border bg-card shadow-lg">
+        <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-[min(70vh,420px)] overflow-hidden rounded-2xl border border-border/60 bg-card/95 shadow-xl backdrop-blur-xl sm:max-h-none">
           {loading ? (
             <div className="flex items-center justify-center gap-2 px-4 py-8 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -120,8 +142,8 @@ export function GlobalSearch({ className }: { className?: string }) {
                     <button
                       key={p.id}
                       type="button"
-                      onClick={() => go(`/dashboard/projects/${p.id}`)}
-                      className="flex w-full flex-col rounded-lg px-3 py-2 text-left text-sm hover:bg-muted"
+                      onClick={() => go(p.href)}
+                      className="flex w-full flex-col rounded-xl px-3 py-2.5 text-left text-sm transition-colors hover:bg-muted/60"
                     >
                       <span className="font-medium">{p.title}</span>
                       {p.reference_code && (
@@ -137,8 +159,8 @@ export function GlobalSearch({ className }: { className?: string }) {
                     <button
                       key={d.id}
                       type="button"
-                      onClick={() => go(`/dashboard/projects/${d.project_id}`)}
-                      className="flex w-full flex-col rounded-lg px-3 py-2 text-left text-sm hover:bg-muted"
+                      onClick={() => go(d.href)}
+                      className="flex w-full flex-col rounded-xl px-3 py-2.5 text-left text-sm transition-colors hover:bg-muted/60"
                     >
                       <span className="font-medium">{d.title || d.file_name}</span>
                       <span className="text-xs text-muted-foreground">
@@ -155,8 +177,8 @@ export function GlobalSearch({ className }: { className?: string }) {
                     <button
                       key={t.id}
                       type="button"
-                      onClick={() => go(`/dashboard/projects/${t.project_id}`)}
-                      className="flex w-full flex-col rounded-lg px-3 py-2 text-left text-sm hover:bg-muted"
+                      onClick={() => go(t.href)}
+                      className="flex w-full flex-col rounded-xl px-3 py-2.5 text-left text-sm transition-colors hover:bg-muted/60"
                     >
                       <span className="font-medium">{t.title}</span>
                       <span className="text-xs text-muted-foreground">{t.projectTitle}</span>

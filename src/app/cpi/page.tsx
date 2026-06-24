@@ -1,11 +1,17 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/shared/page-header";
 import { KpiCards } from "@/components/dashboard/kpi-cards";
-import { ProjectCard } from "@/components/dashboard/project-card";
+import { ProjectTable } from "@/components/dashboard/project-card";
+import { CpiQuickActions } from "@/components/cpi/cpi-quick-actions";
+import { CpiOnboarding } from "@/components/cpi/cpi-onboarding";
 import { StaleCasesAlert } from "@/components/cpi/stale-cases-alert";
+import { DashboardSection } from "@/components/dashboard/dashboard-section";
+import { DashboardLinkCard } from "@/components/dashboard/dashboard-link-card";
 import { requireUser } from "@/lib/auth/require-user";
-import { getCpiProjects, getCpiStats } from "@/lib/cpi/queries";
-import { Briefcase, FileText, FlaskConical, Scale, ArrowRight } from "lucide-react";
+import { getCpiProjects, computeCpiStats } from "@/lib/cpi/queries";
+import { listIpDeadlinesForUser } from "@/lib/actions/ip-deadlines";
+import { IpDeadlinesPanel } from "@/components/surveillance/ip-deadlines-panel";
+import { Briefcase, FileText, FlaskConical, Scale, Columns3, Eye } from "lucide-react";
 import type { Project } from "@/types/database";
 
 export const metadata = { title: "Espace CPI" };
@@ -14,10 +20,11 @@ const STALE_DAYS = 7;
 
 export default async function CpiDashboardPage() {
   const ctx = await requireUser();
-  const [stats, projects] = await Promise.all([
-    getCpiStats(ctx.user.id),
+  const [projects, ipDeadlines] = await Promise.all([
     getCpiProjects(ctx.user.id),
+    listIpDeadlinesForUser(8, ctx.user.id, true),
   ]);
+  const stats = computeCpiStats(projects);
 
   const staleMs = STALE_DAYS * 24 * 60 * 60 * 1000;
   const now = Date.now();
@@ -29,73 +36,77 @@ export default async function CpiDashboardPage() {
 
   const priority = projects
     .filter((p) => ["cpi_review", "expert_review", "in_review"].includes(p.status))
-    .slice(0, 3) as Project[];
+    .slice(0, 5) as Project[];
 
   return (
-    <div className="space-y-8">
-      <PageHeader title="Conseiller PI" description="Dossiers assignés et revues juridiques." />
-
-      <StaleCasesAlert projects={staleProjects} />
+    <div className="space-y-6">
+      <PageHeader
+        icon={Briefcase}
+        eyebrow="Espace conseiller"
+        title="Conseiller PI"
+        description="Pilotage des dossiers clients — revue, surveillance et échéances OMPIC."
+      />
 
       <KpiCards
         items={[
           { title: "Dossiers actifs", value: stats.activeCount, icon: Briefcase },
           { title: "En revue", value: stats.inReviewCount, icon: FileText },
-          {
-            title: "Revue expert",
-            value: stats.awaitingExpertCount,
-            icon: FlaskConical,
-          },
+          { title: "Revue expert", value: stats.awaitingExpertCount, icon: FlaskConical },
           { title: "Décision CPI", value: stats.cpiReviewCount, icon: Scale },
         ]}
       />
 
-      {priority.length > 0 && (
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">À traiter</h2>
-            <Link
-              href="/cpi/cases"
-              className="flex items-center gap-1 text-sm text-primary hover:underline"
-            >
-              Tous les dossiers
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {priority.map((p) => (
-              <ProjectCard key={p.id} project={p} href={`/cpi/cases/${p.id}`} />
-            ))}
-          </div>
-        </section>
-      )}
+      <CpiQuickActions />
+      <StaleCasesAlert projects={staleProjects} />
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Link
-          href="/cpi/review"
-          className="card-elevated group flex items-center justify-between p-5"
-        >
-          <div>
-            <p className="font-semibold group-hover:text-primary">File de revue</p>
-            <p className="text-sm text-muted-foreground">
-              {stats.cpiReviewCount} dossier{stats.cpiReviewCount !== 1 ? "s" : ""} en décision
-            </p>
-          </div>
-          <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary" />
-        </Link>
-        <Link
-          href="/cpi/reports"
-          className="card-elevated group flex items-center justify-between p-5"
-        >
-          <div>
-            <p className="font-semibold group-hover:text-primary">Rapports</p>
-            <p className="text-sm text-muted-foreground">
-              {stats.decidedCount} décision{stats.decidedCount !== 1 ? "s" : ""} rendue
-              {stats.decidedCount !== 1 ? "s" : ""}
-            </p>
-          </div>
-          <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary" />
-        </Link>
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
+          {priority.length > 0 && (
+            <DashboardSection
+              title="À traiter en priorité"
+              description="Dossiers en revue ou en attente de décision."
+              actionHref="/cpi/cases"
+            >
+              <ProjectTable
+                projects={priority}
+                hrefFor={(id) => `/cpi/cases/${id}`}
+                embedded
+              />
+            </DashboardSection>
+          )}
+
+          <DashboardSection title="Raccourcis" description="Accès rapide aux outils CPI.">
+            <DashboardLinkCard
+              href="/cpi/surveillance"
+              title="Surveillance"
+              description="Veille marques & brevets — OMPIC live"
+              icon={Eye}
+            />
+            <DashboardLinkCard
+              href="/cpi/kanban"
+              title="Kanban"
+              description={`Pipeline — ${stats.activeCount} actif${stats.activeCount !== 1 ? "s" : ""}`}
+              icon={Columns3}
+            />
+            <DashboardLinkCard
+              href="/cpi/review"
+              title="File de revue"
+              description={`${stats.cpiReviewCount} en décision`}
+              icon={FileText}
+            />
+            <DashboardLinkCard
+              href="/cpi/reports"
+              title="Rapports"
+              description={`${stats.decidedCount} décision${stats.decidedCount !== 1 ? "s" : ""}`}
+              icon={Briefcase}
+            />
+          </DashboardSection>
+        </div>
+
+        <aside className="space-y-6">
+          <CpiOnboarding activeCaseCount={stats.activeCount} />
+          <IpDeadlinesPanel deadlines={ipDeadlines} viewer="cpi" compact />
+        </aside>
       </div>
     </div>
   );

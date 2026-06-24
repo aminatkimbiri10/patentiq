@@ -1,0 +1,267 @@
+<!DOCTYPE html><html lang='fr'><head><meta charset='utf-8'><title>Soutenance PatentIQ — Guide détaillé</title><style>
+@page { size: A4; margin: 18mm 16mm; }
+* { box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 10.5pt;
+  line-height: 1.55;
+  color: #1e293b;
+  max-width: 100%;
+}
+.cover {
+  text-align: center;
+  padding: 40px 0 30px;
+  border-bottom: 3px solid #0A66C2;
+  margin-bottom: 28px;
+}
+.cover h1 { color: #0A66C2; font-size: 26pt; margin: 0 0 8px; }
+.cover h2 { font-size: 13pt; font-weight: 500; color: #475569; margin: 0; }
+.cover .meta { margin-top: 24px; font-size: 10pt; color: #64748b; }
+.slide {
+  page-break-before: always;
+  padding-top: 8px;
+}
+.slide:first-of-type { page-break-before: avoid; }
+.slide-header {
+  border-left: 4px solid #0A66C2;
+  padding-left: 12px;
+  margin-bottom: 16px;
+}
+.slide-header h2 { margin: 0; color: #0A66C2; font-size: 14pt; }
+.slide-header .duration {
+  font-size: 9pt;
+  color: #64748b;
+  margin-top: 4px;
+}
+h3 {
+  font-size: 10.5pt;
+  color: #0A66C2;
+  margin: 18px 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+ul { margin: 0 0 12px; padding-left: 20px; }
+li { margin-bottom: 5px; }
+.script {
+  background: #f0f7ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  padding: 14px 16px;
+  font-style: italic;
+  white-space: pre-wrap;
+  font-size: 10pt;
+  line-height: 1.6;
+}
+.demo {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 9.5pt;
+  margin-bottom: 12px;
+}
+.demo strong { color: #b45309; }
+.annexe { page-break-before: always; }
+.qa-item { margin-bottom: 18px; }
+.qa-item .q { font-weight: 600; color: #0A66C2; margin-bottom: 4px; }
+.qa-item .a { margin: 0; }
+.footer-note {
+  margin-top: 40px;
+  font-size: 8.5pt;
+  color: #94a3b8;
+  text-align: center;
+}
+@media print {
+  .slide { page-break-inside: avoid; }
+}
+</style></head><body><div class='cover'><h1>PatentIQ</h1><h2>Guide de soutenance détaillé<br>Contenu approfondi + scripts oraux</h2><div class='meta'><p><strong>[Prénom NOM]</strong> — Stage I2PA — [Dates]<br>Durée cible : 15–18 min (slides) + 5 min démo optionnelle + questions<br>Associé : SOUTENANCE_PATENTIQ_SCRIPTS.pptx · RAPPORT_DE_STAGE_COMPLET.md</p></div></div><h3>Timing récapitulatif</h3><ul><li>Intro + contexte (slides 1–4) : ~4 min</li><li>Objectifs + méthode + architecture (5–8) : ~5 min</li><li>4 piliers + cycles (9–13) : ~7 min</li><li>Avancé + sécurité + tests + bilan (14–18) : ~4 min</li><li>Conclusion + questions (19–21) : ~2 min</li><li>Démo live optionnelle : +5 min</li></ul><div class='slide'><div class='slide-header'><h2>Slide 1 — Page de titre — PatentIQ</h2><div class='duration'>Durée conseillée : 45 secondes</div></div><h3>Contenu détaillé</h3><ul><li>Présentation officielle du stage réalisé chez I2PA (International Intellectual Property Assistance), Mohammedia.</li><li>Sujet : conception et développement de PatentIQ, plateforme web d&#x27;assistance à la propriété intellectuelle.</li><li>Public visé : jury académique, encadrante entreprise, éventuellement tuteur pédagogique.</li><li>Objectif de la soutenance : démontrer la cohérence métier + technique du livrable, avec honnêteté sur les limites.</li></ul><h3>Script oral</h3><div class='script'>Bonjour à toutes et à tous.
+
+Je m&#x27;appelle [Prénom NOM], étudiant(e) en [filière] à [établissement].
+
+J&#x27;ai effectué mon stage de [X] semaines au sein d&#x27;I2PA — International Intellectual Property Assistance — à Mohammedia, sous la direction de [encadrante] et avec le suivi de [tuteur].
+
+Le sujet de mon stage : la conception et le développement de PatentIQ, une plateforme web d&#x27;assistance à la propriété intellectuelle.
+
+Dans les quinze à dix-huit minutes qui suivent, je vais vous présenter le contexte, l&#x27;architecture, les fonctionnalités livrées, et ce que ce projet m&#x27;a appris — techniquement et sur le plan métier.</div></div><div class='slide'><div class='slide-header'><h2>Slide 2 — Plan de la présentation</h2><div class='duration'>Durée conseillée : 30 secondes</div></div><h3>Contenu détaillé</h3><ul><li>Six temps structurés pour guider le jury du général au spécifique.</li><li>1. Contexte I2PA et problématique métier.</li><li>2. Objectifs du stage et méthode de travail incrémentale.</li><li>3. Architecture technique et acteurs (4 rôles).</li><li>4. Les quatre piliers fonctionnels : dossier, rédaction, IA, surveillance.</li><li>5. Intelligence artificielle encadrée, avec limites documentées.</li><li>6. Résultats, difficultés, perspectives et conclusion.</li><li>Démo live optionnelle en fin de séance (+5 min).</li></ul><h3>Script oral</h3><div class='script'>Ma présentation s&#x27;articule en six temps.
+
+D&#x27;abord le contexte I2PA et la problématique qui a motivé le projet.
+
+Ensuite les objectifs et ma méthode de travail.
+
+Puis l&#x27;architecture et les acteurs de la plateforme.
+
+Le cœur de la soutenance : les quatre piliers fonctionnels de PatentIQ.
+
+Un point dédié à l&#x27;intelligence artificielle, avec ses limites assumées.
+
+Et enfin les résultats, les difficultés rencontrées, et les perspectives.
+
+Si le temps le permet, je pourrai enchaîner sur une démonstration live de l&#x27;application.</div></div><div class='slide'><div class='slide-header'><h2>Slide 3 — I2PA — Contexte d&#x27;accueil</h2><div class='duration'>Durée conseillée : 1 minute</div></div><h3>Contenu détaillé</h3><ul><li>I2PA : cabinet marocain de conseil en PI, Mohammedia (Lot Massira, Résidence Costa del Sol).</li><li>Site : i2pa.com — slogan « Protéger, valoriser, innover ».</li><li>Activités : brevets, marques, dessins &amp; modèles, veille, surveillance, accompagnement contractuel.</li><li>Distinction fondamentale : I2PA conseille et structure ; l&#x27;OMPIC (directompic.ma) effectue le dépôt officiel.</li><li>PatentIQ = outil interne de travail, pas un portail grand public de dépôt.</li><li>Périmètre assumé : préparer, centraliser, suivre — avant et après les démarches OMPIC.</li></ul><h3>Script oral</h3><div class='script'>I2PA est un cabinet marocain spécialisé en propriété intellectuelle, basé à Mohammedia.
+
+Son rôle : accompagner les porteurs de projets et les entreprises dans la protection de leurs innovations — brevets, marques, dessins et modèles — et dans la veille sur leurs titres une fois déposés.
+
+Un point essentiel à comprendre dès le départ : I2PA conseille et structure les dossiers, mais ne dépose pas à la place du client. Le dépôt officiel se fait sur les portails de l&#x27;OMPIC, notamment directompic.ma.
+
+PatentIQ a donc été conçu dans ce cadre : préparer, centraliser et suivre un dossier, en amont et en aval des démarches officielles — pas les remplacer.
+
+Le slogan du cabinet résume bien cette mission : « Protéger, valoriser, innover ».</div></div><div class='slide'><div class='slide-header'><h2>Slide 4 — Problématique</h2><div class='duration'>Durée conseillée : 1 minute 30</div></div><h3>Contenu détaillé</h3><ul><li>Sans outil dédié : documents éparpillés (emails, PDF), antériorité non reliée au dossier.</li><li>Délais incompatibles entre titres : opposition marque ~2 mois vs publication brevet ~18 mois.</li><li>Pas d&#x27;outil léger adapté au duo porteur ↔ conseiller CPI au Maroc.</li><li>Logiciels PI « enterprise » (Questel, PatSnap) : coût et complexité disproportionnés pour I2PA.</li><li>Problématique formelle : centraliser + fiabiliser + IA transparente, sans remplacer l&#x27;OMPIC.</li><li>Citation structurante (encadrante) : « Les systèmes sont différents par rapport aux produits. »</li></ul><h3>Script oral</h3><div class='script'>Concrètement, sans outil dédié, le suivi d&#x27;un dossier PI se disperse très vite.
+
+Les pièces justificatives finissent dans des fils de courriels. Une recherche d&#x27;antériorité faite une fois n&#x27;est jamais rattachée au dossier client. Les délais propres à chaque type de titre se mélangent — alors qu&#x27;une marque et un brevet n&#x27;ont rien de comparable.
+
+Pour une marque, la fenêtre d&#x27;opposition après publication se compte en quelques semaines. Pour un brevet, la publication intervient plutôt autour de dix-huit mois après le dépôt.
+
+La question centrale de mon stage peut se formuler ainsi : Comment doter un cabinet comme I2PA d&#x27;un outil capable de centraliser et fiabiliser le suivi d&#x27;un dossier PI, sans se substituer à l&#x27;OMPIC, tout en intégrant l&#x27;IA de manière transparente et honnête ?
+
+Lors d&#x27;un point de suivi, mon encadrante m&#x27;a aussi dit une phrase qui a structuré tout le développement : « Les systèmes sont différents par rapport aux produits. » — on ne gère pas une marque comme un brevet.</div></div><div class='slide'><div class='slide-header'><h2>Slide 5 — Objectifs du stage</h2><div class='duration'>Durée conseillée : 1 minute</div></div><h3>Contenu détaillé</h3><ul><li>Axe 1 — Comprendre : parcours réel dossier PI Maroc (porteur → CPI → expert).</li><li>Axe 2 — Développer : PatentIQ par itérations courtes et vérifiables.</li><li>Axe 3 — Aligner : prioriser les retours encadrante sur les suppositions techniques.</li><li>Axe 4 — Valider : tests automatisés + démo crédible pour la soutenance.</li><li>Livrables : application fonctionnelle, 32 migrations SQL, 104+ tests, documentation docs/.</li></ul><h3>Script oral</h3><div class='script'>Mes objectifs se sont articulés en quatre axes.
+
+Premier axe : comprendre le parcours réel d&#x27;un dossier PI au Maroc — du porteur au conseiller CPI, en passant par l&#x27;expert si besoin.
+
+Deuxième axe : concevoir et développer PatentIQ par itérations courtes — une brique à la fois, testée avant de passer à la suivante.
+
+Troisième axe : aligner les fonctionnalités sur les retours concrets de l&#x27;encadrante, plutôt que sur mes propres suppositions techniques.
+
+Quatrième axe : tester, documenter, et préparer une démonstration crédible — celle que je vous présente aujourd&#x27;hui.</div></div><div class='slide'><div class='slide-header'><h2>Slide 6 — Méthode de travail</h2><div class='duration'>Durée conseillée : 1 minute</div></div><h3>Contenu détaillé</h3><ul><li>Approche incrémentale : migration SQL → Server Action → composant UI → test.</li><li>Validation « double session » : 2 navigateurs (porteur + CPI) pour chaque évolution.</li><li>Phase 1 : socle (auth, projets, documents, messages, premières analyses IA).</li><li>Phase 2 : attentes métier (surveillance, veille, rédaction brevet, Kanban, 2FA).</li><li>Phase 3 : consolidation (FTO, opposition, dessin, complétude, pré-examen, UX).</li><li>Documentation continue : DEMO_ENCADRANTE.md, DIAGRAMMES_UML.md, rapport de stage.</li></ul><h3>Script oral</h3><div class='script'>Sur le plan méthodologique, j&#x27;ai travaillé de façon incrémentale.
+
+Chaque évolution suivait le même schéma : une migration SQL, une action serveur, un composant d&#x27;interface — puis validation avant d&#x27;avancer.
+
+Ma règle d&#x27;or pour tester : la double session. Un navigateur en compte porteur, un autre en compte conseiller CPI. C&#x27;est ainsi que j&#x27;ai détecté la majorité des problèmes de permissions et de navigation.
+
+Le projet s&#x27;est déroulé en trois phases : d&#x27;abord le socle collaboratif, puis les attentes métier de l&#x27;encadrante, enfin la consolidation et les finitions.
+
+À la clôture : 32 migrations de base de données, plus de cent tests unitaires, et une documentation complète dans le dossier docs/.</div></div><div class='slide'><div class='slide-header'><h2>Slide 7 — Architecture technique</h2><div class='duration'>Durée conseillée : 1 minute 30</div></div><div class='demo'><strong>Démo :</strong> Insérer capture ou diagramme architecture (DIAGRAMMES_UML.md).</div><h3>Contenu détaillé</h3><ul><li>Frontend : Next.js 14 App Router, React 18, TypeScript strict, Tailwind, shadcn/ui.</li><li>Backend intégré : Server Actions (pas de serveur Node séparé).</li><li>Données : Supabase PostgreSQL + RLS + Auth (email, MFA TOTP) + Storage (50 Mo/fichier).</li><li>Validation : Zod (schémas partagés client/serveur).</li><li>APIs externes : EPO OPS (brevets), Hugging Face (LLM), search.ompic.ma (marques).</li><li>Workers : traitement IA asynchrone + scan surveillance (local ou GitHub Actions).</li><li>Déploiement : Vercel + Supabase cloud (tier gratuit).</li><li>Schéma : Navigateur → Next.js → Supabase → services externes.</li></ul><h3>Script oral</h3><div class='script'>Sur le plan technique, j&#x27;ai choisi une stack moderne et légère, déployable sans budget cloud initial.
+
+Côté frontend : Next.js 14 avec l&#x27;App Router, React, TypeScript, Tailwind CSS et shadcn/ui pour les composants.
+
+Côté backend : pas de serveur séparé — les Server Actions de Next.js parlent directement à Supabase : PostgreSQL pour les données, Auth pour l&#x27;authentification, Storage pour les fichiers.
+
+La sécurité repose sur le Row Level Security de PostgreSQL : les permissions sont appliquées en base de données, pas seulement dans l&#x27;interface. Un porteur ne peut pas contourner une règle d&#x27;accès en manipulant l&#x27;URL.
+
+Pour les données externes : l&#x27;EPO Open Patent Services pour les brevets, Hugging Face pour les synthèses textuelles, et le portail public search.ompic.ma pour les marques.
+
+Le tout est déployable sur Vercel et Supabase en offre gratuite.</div></div><div class='slide'><div class='slide-header'><h2>Slide 8 — Acteurs et espaces applicatifs</h2><div class='duration'>Durée conseillée : 1 minute</div></div><h3>Contenu détaillé</h3><ul><li>project_holder → /dashboard : création dossier, documents, analyses, suivi.</li><li>cpi_advisor → /cpi : revue, statuts, Kanban, portefeuille, surveillance clients.</li><li>expert → /expert : avis technique structuré transmis au CPI.</li><li>admin → /admin : utilisateurs, paramètres workflow, audit.</li><li>7 catégories : brevet, modèle d&#x27;utilité, marque, dessin, secret, FTO/veille, autre.</li><li>Checklists distinctes par catégorie — brevet ≠ marque ≠ dessin.</li><li>Isolation des données : RLS + navigation par rôle.</li></ul><h3>Script oral</h3><div class='script'>PatentIQ distingue quatre rôles.
+
+Le porteur de projet accède à l&#x27;espace /dashboard : il crée ses dossiers, dépose des documents, lance des analyses, et suit l&#x27;avancement.
+
+Le conseiller CPI a son espace /cpi : il traite les dossiers qui lui sont assignés, fait évoluer les statuts, pilote son portefeuille via un Kanban, et gère la surveillance de ses clients.
+
+L&#x27;expert métier intervient sur /expert pour rendre un avis technique structuré.
+
+L&#x27;administrateur gère les utilisateurs, les paramètres du workflow et consulte le journal d&#x27;audit.
+
+Chaque dossier appartient à l&#x27;une de sept catégories — brevet, marque, dessin, etc. — avec une checklist métier adaptée. Ce n&#x27;est pas du cosmétique : une checklist brevet et une checklist marque ne portent pas sur les mêmes étapes.</div></div><div class='slide'><div class='slide-header'><h2>Slide 9 — Pilier 1 — Dossier collaboratif</h2><div class='duration'>Durée conseillée : 1 minute 30</div></div><div class='demo'><strong>Démo :</strong> Tableau de bord porteur → ouvrir un projet → score de complétude en haut de l&#x27;onglet Dossier.</div><h3>Contenu détaillé</h3><ul><li>Structure projet : 3 onglets — Dossier, Analyses IA, Échanges.</li><li>Documents versionnés (PDF, Word, PNG, JPEG) — bucket Supabase privé.</li><li>OCR local (Tesseract) pour PDF scannés — sans envoi vers API externe.</li><li>Checklist métier dynamique selon catégorie (brevet, marque, dessin…).</li><li>Score de complétude (0–100 %) : résumé, catégorie, documents, checklist pondérée.</li><li>Fonction pure computeProjectCompleteness — testée unitairement.</li><li>Workflow 9 statuts : draft → submitted → … → approved/rejected/closed.</li><li>Transitions contrôlées par rôle (isCpiStatusTransitionAllowed).</li><li>Porteur peut supprimer son dossier (avec confirmation).</li></ul><h3>Script oral</h3><div class='script'>Le premier pilier, c&#x27;est le dossier collaboratif.
+
+Chaque projet est organisé en trois onglets : Dossier, Analyses IA, et Échanges — commentaires, messages et tâches.
+
+Les documents sont versionnés et stockés de façon sécurisée : PDF, Word, images, jusqu&#x27;à cinquante mégaoctets par fichier.
+
+La checklist guide le porteur étape par étape, selon la catégorie du dossier.
+
+J&#x27;ai aussi ajouté un score de complétude : un pourcentage calculé à partir du résumé, des documents déposés et de la progression de la checklist — avec la prochaine action à réaliser. C&#x27;est inspiré des outils de docketing des grands cabinets, adapté au contexte I2PA.
+
+Enfin, un workflow à neuf statuts encadre le parcours, du brouillon jusqu&#x27;à la clôture — et les transitions dépendent du rôle : un porteur ne peut pas s&#x27;auto-approuver un dossier.</div></div><div class='slide'><div class='slide-header'><h2>Slide 10 — Pilier 2 — Rédaction &amp; revendications</h2><div class='duration'>Durée conseillée : 1 minute 30</div></div><div class='demo'><strong>Démo :</strong> Parcours PI → Rédaction → bouton « Lancer le pré-examen ».</div><h3>Contenu détaillé</h3><ul><li>Tables patent_drafts, patent_claims_drafts, patent_draft_versions.</li><li>Sections : titre, domaine technique, état de l&#x27;art, description, abrégé.</li><li>Revendications isolées des messages — confidentialité juridique.</li><li>Pré-examen heuristique (analyzeDraftHeuristics) : blocker / warning / tip.</li><li>Règles : rev. indépendante, abrégé ≤ 150 mots, termes vagues, base d&#x27;antériorité.</li><li>Score /100 + suggestions — indicatif, pas avis juridique.</li><li>Aide rédaction IA (Hugging Face) + export PDF dossier brevet.</li><li>Historique des versions de rédaction.</li></ul><h3>Script oral</h3><div class='script'>Le deuxième pilier concerne la rédaction de brevet et les revendications.
+
+Le brouillon est structuré en sections : titre, domaine technique, état de l&#x27;art, description, abrégé.
+
+Les revendications vivent dans un espace dédié et séparé des messages ouverts — parce qu&#x27;une revendication est confidentielle et engageante ; elle ne doit pas se retrouver dans un fil de discussion général.
+
+J&#x27;ai implémenté un pré-examen automatique : avant la revue CPI, le système détecte les anomalies les plus fréquentes — absence de revendication indépendante, abrégé trop long, termes vagues, problèmes de base d&#x27;antériorité. Ce n&#x27;est pas une validation juridique ; c&#x27;est une aide à la relecture, basée sur des règles testables.
+
+Le conseiller peut aussi exporter le dossier brevet en PDF.</div></div><div class='slide'><div class='slide-header'><h2>Slide 11 — Pilier 3 — Analyses IA assistées</h2><div class='duration'>Durée conseillée : 1 minute 30</div></div><div class='demo'><strong>Démo :</strong> Onglet Analyses IA → historique ou lancer « Nouveauté » (worker actif).</div><h3>Contenu détaillé</h3><ul><li>7 types : nouveauté, FTO, sémantique, similarité, résumé, classification IPC, tags.</li><li>Pipeline : lancement → ai_searches (pending) → worker → ai_results + synthèse.</li><li>Sources : EPO OPS international + pn=MA (publications marocaines) + OMPIC marques.</li><li>LLM : Hugging Face (Qwen2.5-7B-Instruct configurable) — fallback template.</li><li>Chat assistant contextuel par dossier (RAG léger par mots-clés).</li><li>Incident corrigé : pa=MA (déposant) confondu avec pn=MA (pays publication).</li><li>Toutes synthèses marquées « indicatif — ne remplace pas avis CPI ».</li><li>Commande worker : npm run ai:worker:loop (documenté).</li></ul><h3>Script oral</h3><div class='script'>Le troisième pilier, c&#x27;est l&#x27;intelligence artificielle assistive.
+
+Sept types d&#x27;analyses sont disponibles : nouveauté, liberté d&#x27;exploitation — la FTO —, analyse sémantique, similarité, résumé de document, classification IPC, et suggestions de tags.
+
+Les sources sont réelles : brevets internationaux via l&#x27;EPO, publications marocaines via le filtre pn=MA, marques via le portail OMPIC.
+
+Le traitement est asynchrone : l&#x27;utilisateur lance l&#x27;analyse, elle passe en « en attente », un worker la traite, puis les résultats s&#x27;affichent. C&#x27;est documenté — sans worker actif, l&#x27;analyse reste en attente. J&#x27;ai préféré cette honnêteté à une fausse promesse de résultat instantané.
+
+Toutes les synthèses rappellent qu&#x27;elles sont indicatives et ne remplacent pas un avis juridique.
+
+J&#x27;ai aussi corrigé un incident réel : une requête EPO utilisait pa=MA — le déposant — au lieu de pn=MA — le pays de publication. La correction est testée unitairement.</div></div><div class='slide'><div class='slide-header'><h2>Slide 12 — Pilier 4 — Surveillance &amp; veille</h2><div class='duration'>Durée conseillée : 1 minute 30</div></div><div class='demo'><strong>Démo :</strong> Surveillance → recherche marque → watchlist → alertes.</div><h3>Contenu détaillé</h3><ul><li>Watchlist (ip_watchlist) + alertes similarité (ip_watch_alerts).</li><li>Recherche marques : portail public search.ompic.ma (pas d&#x27;API REST officielle).</li><li>Modes OMPIC : live, stub (démo), proxy (n8n), hybrid — documentés.</li><li>Veille techno (ip_tech_watch) : mots-clés + IPC sur brevets EPO.</li><li>Échéances PI : opposition marque, publication brevet — panneau tableau de bord.</li><li>Fiche opposition sur alerte marque.</li><li>Dessins : cycle gestion oui, recherche auto non (transparence).</li><li>Scan planifiable : GitHub Actions surveillance-scan.yml.</li></ul><h3>Script oral</h3><div class='script'>Le quatrième pilier : surveillance et veille.
+
+La watchlist permet de suivre les titres enregistrés et de lancer des scans de similarité sur search.ompic.ma — le portail public des marques.
+
+Comme l&#x27;OMPIC ne publie pas d&#x27;API officielle, j&#x27;ai conçu un fournisseur configurable : mode live, stub pour démo hors ligne, proxy, ou hybride. Chaque mode est documenté — je ne simule pas une API officielle qui n&#x27;existe pas.
+
+La veille technologique suit des mots-clés et des classes IPC sur les brevets EPO.
+
+Des rappels d&#x27;échéances s&#x27;affichent sur le tableau de bord : fenêtre d&#x27;opposition pour les marques, attente de publication pour les brevets.
+
+Pour les dessins et modèles, j&#x27;ai conservé le cycle de gestion du dossier, mais sans moteur de recherche automatique — faute d&#x27;API OMPIC. C&#x27;est un choix de transparence assumé.</div></div><div class='slide'><div class='slide-header'><h2>Slide 13 — Cycles de vie distincts</h2><div class='duration'>Durée conseillée : 1 minute</div></div><h3>Contenu détaillé</h3><ul><li>Marque : dépôt → publié → opposition ~2 mois → enregistré → surveillance.</li><li>Brevet : dépôt → examen → publication ~18 mois → délivrance → veille.</li><li>Dessin : dépôt → examen → publication → surveillance manuelle.</li><li>Métadonnées cycles stockées dans projects.metadata.</li><li>Libellés UI dynamiques (getProjectSummaryLabels) : marque ≠ brevet.</li><li>Réponse directe à : « Les systèmes sont différents par rapport aux produits. »</li></ul><h3>Script oral</h3><div class='script'>Cette slide résume la leçon métier la plus importante du stage.
+
+Marque : dépôt, publication, opposition d&#x27;environ deux mois, enregistrement, puis surveillance continue.
+
+Brevet : dépôt, examen, attente de publication d&#x27;environ dix-huit mois, délivrance, puis veille.
+
+Dessin et modèle : dépôt, examen, publication, surveillance — avec recherche d&#x27;antériorité visuelle manuelle sur les portails officiels.
+
+Même l&#x27;interface reflète cette distinction : pour une marque, on parle de « description de la marque » ; pour un brevet, de « résumé de l&#x27;invention » — parce qu&#x27;une marque n&#x27;est pas une invention technique.
+
+C&#x27;est la traduction concrète de la remarque de mon encadrante.</div></div><div class='slide'><div class='slide-header'><h2>Slide 14 — Fonctionnalités avancées</h2><div class='duration'>Durée conseillée : 1 minute</div></div><div class='demo'><strong>Démo :</strong> Optionnel : /cpi/reports ou générateur dénominations (projet marque).</div><h3>Contenu détaillé</h3><ul><li>Tableau de bord portefeuille CPI (/cpi/reports) : KPIs, répartition statuts/types.</li><li>Claim chart : matrice revendications vs antériorité (IA + fallback template).</li><li>Générateur dénominations marque + vérification OMPIC inline.</li><li>Assistance réponse irrégularités OMPIC (brouillon courrier structuré).</li><li>Score complétude + pré-examen (fonctions pures, tests Vitest).</li><li>Inspiré outils marché (Questel, PatSnap, Anaqua) — échelle MVP I2PA.</li><li>Toutes basées sur données réelles du dossier — pas de fake data en démo.</li></ul><h3>Script oral</h3><div class='script'>En fin de stage, j&#x27;ai enrichi la plateforme avec plusieurs modules inspirés d&#x27;outils professionnels du marché — à l&#x27;échelle d&#x27;un MVP.
+
+Un tableau de bord portefeuille pour le CPI : répartition par statut et par type de PI.
+
+Une cartographie des revendications face à l&#x27;antériorité — un claim chart simplifié.
+
+Un générateur de dénominations pour les projets marque, avec vérification OMPIC en un clic.
+
+Une assistance à la réponse aux irrégularités OMPIC : brouillon structuré à partir d&#x27;une notification reçue.
+
+Et les modules déjà cités : score de complétude et pré-examen de brouillon.
+
+Tous s&#x27;appuient sur des données réelles du dossier — pas de catalogue simulé présenté comme officiel.</div></div><div class='slide'><div class='slide-header'><h2>Slide 15 — Sécurité &amp; confidentialité</h2><div class='duration'>Durée conseillée : 45 secondes</div></div><h3>Contenu détaillé</h3><ul><li>RLS PostgreSQL : can_view_project(), can_edit_project(), has_role()…</li><li>Policies SELECT/INSERT/UPDATE sur chaque table sensible.</li><li>Auth : email confirmé, MFA TOTP (/dashboard/security).</li><li>Stockage : buckets privés, URLs signées pour avatars/documents.</li><li>Audit logs : actions sensibles tracées (admin).</li><li>Difficulté : policies mal écrites → résultats vides sans erreur UI.</li></ul><h3>Script oral</h3><div class='script'>Sur la sécurité, trois points clés.
+
+Un : le Row Level Security PostgreSQL, avec des fonctions centralisées comme can_view_project — admin, propriétaire, membre, CPI assigné, expert.
+
+Deux : l&#x27;authentification — email confirmé, double facteur TOTP disponible.
+
+Trois : le journal d&#x27;audit pour les actions sensibles côté administrateur.
+
+La difficulté la plus marquante ici : une policy mal écrite renvoie parfois un résultat vide sans message d&#x27;erreur. J&#x27;ai appris à tester systématiquement avec deux comptes après chaque migration.</div></div><div class='slide'><div class='slide-header'><h2>Slide 16 — Tests &amp; validation</h2><div class='duration'>Durée conseillée : 45 secondes</div></div><h3>Contenu détaillé</h3><ul><li>Vitest : 104+ tests — EPO, cycles PI, complétude, pré-examen, OMPIC, exports.</li><li>Playwright : parcours login, dashboard, navigation projet.</li><li>Manuel : double session porteur/CPI, grille 12 scénarios (rapport §6).</li><li>Validation métier : démos encadrante, DEMO_PREP_PRIORITE1.md.</li><li>CI locale : npm test &amp;&amp; npm run typecheck &amp;&amp; npm run build.</li></ul><h3>Script oral</h3><div class='script'>La qualité est assurée à trois niveaux.
+
+Plus de cent tests unitaires avec Vitest — requêtes EPO, cycles PI, score de complétude, pré-examen brevet, similarité OMPIC.
+
+Des tests de bout en bout Playwright sur les parcours critiques.
+
+Et une validation métier continue : démonstrations devant l&#x27;encadrante, scénarios marque et brevet documentés.
+
+Les commandes npm test, npm run typecheck et npm run build passent au vert avant chaque livraison.</div></div><div class='slide'><div class='slide-header'><h2>Slide 17 — Résultats à la clôture</h2><div class='duration'>Durée conseillée : 45 secondes</div></div><h3>Contenu détaillé</h3><ul><li>✓ Parcours porteur → CPI opérationnel.</li><li>✓ Analyses IA (avec worker) + surveillance OMPIC hybrid.</li><li>✓ Rédaction brevet, revendications, export PDF.</li><li>✓ Cycles marque / brevet / dessin différenciés.</li><li>✓ Pré-examen + complétude + modules avancés.</li><li>✓ 32 migrations, documentation complète, déploiement Vercel documenté.</li><li>MVP crédible pour démo et pilote I2PA.</li></ul><h3>Script oral</h3><div class='script'>À la clôture du stage, les éléments suivants sont opérationnels :
+
+le parcours complet porteur vers conseiller ;
+
+les analyses IA, avec le worker ;
+
+la surveillance OMPIC en mode hybride ;
+
+la rédaction et l&#x27;export de brevet ;
+
+les cycles différenciés marque, brevet et dessin ;
+
+le pré-examen et le score de complétude ;
+
+et un déploiement documenté sur Vercel et Supabase.
+
+C&#x27;est un MVP crédible pour une démonstration et un usage pilote chez I2PA.</div></div><div class='slide'><div class='slide-header'><h2>Slide 18 — Limites assumées</h2><div class='duration'>Durée conseillée : 1 minute</div></div><h3>Contenu détaillé</h3><ul><li>Pas d&#x27;API OMPIC officielle — portail public + modes documentés.</li><li>Worker IA requis pour analyses (pas de traitement synchrone illusoire).</li><li>Synthèses indicatives — décision juridique = CPI humain.</li><li>Dessins : pas de recherche auto (refus de simuler des résultats).</li><li>Pas de fine-tuning LLM — modèles pré-entraînés + prompt engineering.</li><li>MVP, pas équivalent Questel / PatSnap / Anaqua.</li><li>Principe : « une limite documentée vaut mieux qu&#x27;une illusion confortable ».</li></ul><h3>Script oral</h3><div class='script'>Je préfère être transparent sur les limites — le jury les posera de toute façon.
+
+Il n&#x27;existe pas d&#x27;API OMPIC officielle : la recherche marques passe par le portail public.
+
+Les analyses IA nécessitent un worker actif — ce n&#x27;est pas magique en un clic sans infrastructure.
+
+Les synthèses restent indicatives : la décision appartient au CPI.
+
+Pour les dessins, pas de recherche automatique — plutôt que de simuler des résultats faux.
+
+Et PatentIQ reste un produit minimal, pas un logiciel commercial complet type Questel ou PatSnap.
+
+Comme je l&#x27;écris dans mon rapport : une limite documentée vaut mieux qu&#x27;une illusion confortable.</div></div><div class='slide'><div class='slide-header'><h2>Slide 19 — Perspectives</h2><div class='duration'>Durée conseillée : 30 secondes</div></div><h3>Contenu détaillé</h3><ul><li>Passerelle OMPIC industrialisée (partenariat / proxy encadré).</li><li>Notifications email transactionnelles.</li><li>RAG vectoriel (embeddings) pour le chat et les analyses.</li><li>Tests E2E authentifiés en CI GitHub Actions.</li><li>Mise en production pilote chez I2PA après validation encadrée.</li></ul><h3>Script oral</h3><div class='script'>Les perspectives sont naturelles : industrialiser la passerelle OMPIC, activer les notifications email, enrichir le RAG avec des embeddings vectoriels, renforcer les tests E2E en intégration continue, et envisager une mise en production encadrée chez I2PA.</div></div><div class='slide'><div class='slide-header'><h2>Slide 20 — Conclusion</h2><div class='duration'>Durée conseillée : 1 minute</div></div><h3>Contenu détaillé</h3><ul><li>PatentIQ = espace de travail PI pour I2PA : collaboration, antériorité, surveillance.</li><li>Le métier impose l&#x27;architecture — marque ≠ brevet ≠ dessin.</li><li>Dépôt officiel reste sur directompic.ma (périmètre volontaire).</li><li>Apports personnels : full-stack métier, APIs réelles, honnêteté produit.</li><li>Remerciements : équipe I2PA, encadrante, tuteur académique.</li></ul><h3>Script oral</h3><div class='script'>Pour conclure.
+
+PatentIQ structure la préparation et le suivi d&#x27;un dossier de propriété intellectuelle pour un cabinet comme I2PA : collaboration multi-acteurs, antériorité assistée, surveillance OMPIC, cycles différenciés.
+
+Le dépôt officiel reste sur directompic.ma — et c&#x27;est voulu.
+
+Sur le plan personnel, ce stage m&#x27;a appris que le métier impose l&#x27;architecture. Écouter avant de coder. Corriger plutôt que masquer. Et livrer quelque chose d&#x27;honnête.
+
+Je remercie l&#x27;équipe I2PA, mon encadrante [nom] pour ses retours qui ont orienté chaque itération, et mon tuteur [nom] pour son suivi académique.</div></div><div class='slide'><div class='slide-header'><h2>Slide 21 — Questions &amp; démo</h2><div class='duration'>Durée conseillée : 30 secondes + Q&amp;R</div></div><div class='demo'><strong>Démo :</strong> Basculer sur localhost:3000 si le jury accepte la démo.</div><h3>Contenu détaillé</h3><ul><li>Ouverture aux questions du jury.</li><li>Démo live optionnelle : parcours marque (10 min) ou brevet (10 min).</li><li>Prérequis démo : npm run dev + npm run ai:worker:loop.</li><li>Comptes porteur + CPI avec email confirmé.</li><li>Guide : docs/DEMO_ENCADRANTE.md.</li></ul><h3>Script oral</h3><div class='script'>Je vous remercie pour votre attention.
+
+Je suis disponible pour vos questions.
+
+Si vous le souhaitez, je peux également vous montrer une démonstration live de l&#x27;application — parcours marque ou brevet.</div></div><div class='annexe'><h2 style='color:#0A66C2'>Annexe A — Banque de réponses au jury</h2><div class='qa-item'><p class='q'>Q : Pourquoi ne pas utiliser Questel, PatSnap ou un logiciel existant ?</p><p class='a'>R : Ces solutions ciblent de grands cabinets, avec un coût et une complexité disproportionnés pour I2PA. PatentIQ est un MVP sur mesure, centré OMPIC et le contexte marocain, hébergeable à faible coût, avec des limites documentées plutôt que des promesses excessives.</p></div><div class='qa-item'><p class='q'>Q : L&#x27;IA remplace-t-elle le conseiller en propriété industrielle ?</p><p class='a'>R : Non. L&#x27;IA assiste : antériorité, synthèse, pré-examen heuristique, chat contextuel. Chaque écran rappelle que le résultat est indicatif. La décision juridique et la stratégie de dépôt restent humaines.</p></div><div class='qa-item'><p class='q'>Q : Comment gérez-vous l&#x27;absence d&#x27;API OMPIC ?</p><p class='a'>R : Recherche marques via le portail public search.ompic.ma. Modes live, proxy n8n, stub démo et hybrid — tous documentés dans OMPIC_SURVEILLANCE.md. Brevets marocains via l&#x27;index EPO avec le filtre pn=MA. Aucun faux connecteur « API officielle ».</p></div><div class='qa-item'><p class='q'>Q : Qu&#x27;avez-vous appris personnellement durant ce stage ?</p><p class='a'>R : Traduire une règle métier PI en architecture logicielle. La remarque « marque ≠ brevet » a changé des semaines de développement. L&#x27;importance de tester avec deux rôles simultanément. Et la valeur d&#x27;une limite documentée face au jury comme face à l&#x27;utilisateur.</p></div><div class='qa-item'><p class='q'>Q : Le projet est-il déployé en production ?</p><p class='a'>R : Déployable sur Vercel + Supabase cloud. Documentation WORKER_AND_DEPLOY.md. Usage pilote chez I2PA envisageable après validation encadrée et configuration des secrets (EPO, HF, OMPIC).</p></div><div class='qa-item'><p class='q'>Q : Pourquoi pas de recherche automatique pour les dessins ?</p><p class='a'>R : L&#x27;OMPIC n&#x27;expose pas d&#x27;API publique pour les dessins. L&#x27;EPO ne propose pas de recherche comparable à celle des marques. Simuler un catalogue permanent serait trompeur en démo. J&#x27;ai conservé le cycle de gestion du dossier avec liens vers les portails officiels.</p></div><h2 style='color:#0A66C2; margin-top:28px'>Annexe B — Checklist jour J (démo)</h2><ul><li>Terminal 1 : npm run dev</li><li>Terminal 2 : npm run ai:worker:loop</li><li>.env.local : SUPABASE, EPO_OPS, HUGGINGFACE, OMPIC_SEARCH_MODE=hybrid</li><li>Comptes porteur + CPI : emails confirmés</li><li>2 projets prêts : 1 marque, 1 brevet</li><li>Guide : docs/DEMO_ENCADRANTE.md</li></ul></div><p class='footer-note'>PatentIQ / I2PA — Document généré pour la soutenance de stage</p></body></html>

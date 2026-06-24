@@ -34,7 +34,7 @@ export function AdminUserRoleForm({
       <select
         name="role_name"
         defaultValue={currentRole ?? "project_holder"}
-        className="h-9 min-w-[10rem] rounded-lg border border-input bg-background px-2 text-xs"
+        className="h-9 w-full min-w-0 max-w-full rounded-lg border border-input bg-background px-2 text-xs sm:h-9 sm:min-w-[10rem] sm:text-sm"
         onChange={(e) => e.currentTarget.form?.requestSubmit()}
       >
         {APP_ROLES.map((role) => (

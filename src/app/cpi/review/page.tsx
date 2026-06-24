@@ -1,5 +1,5 @@
 import { PageHeader } from "@/components/shared/page-header";
-import { ProjectCard } from "@/components/dashboard/project-card";
+import { ProjectTable } from "@/components/dashboard/project-card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { requireUser } from "@/lib/auth/require-user";
 import { getCpiProjects } from "@/lib/cpi/queries";
@@ -14,6 +14,7 @@ export default async function CpiReviewPage() {
   return (
     <div className="space-y-6">
       <PageHeader
+        icon={FileText}
         title="File de revue"
         description="Dossiers en attente de décision CPI ou retour expert."
       />
@@ -24,11 +25,7 @@ export default async function CpiReviewPage() {
           description="Les projets en statut « Revue CPI » ou « Revue expert » apparaîtront ici."
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {items.map((p) => (
-            <ProjectCard key={p.id} project={p} href={`/cpi/cases/${p.id}`} />
-          ))}
-        </div>
+        <ProjectTable projects={items} hrefFor={(id) => `/cpi/cases/${id}`} />
       )}
     </div>
   );

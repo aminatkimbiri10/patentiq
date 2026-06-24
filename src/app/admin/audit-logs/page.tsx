@@ -23,6 +23,7 @@ export default async function AuditLogsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
+        icon={ClipboardList}
         title="Journal d'audit"
         description="Traçabilité des actions sensibles sur la plateforme."
       />

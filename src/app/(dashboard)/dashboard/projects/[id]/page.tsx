@@ -1,23 +1,47 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, FileText, ListChecks, MessageSquare, Sparkles } from "lucide-react";
 import { requireUser } from "@/lib/auth/require-user";
 import { createClient } from "@/lib/supabase/server";
-import { PageHeader } from "@/components/shared/page-header";
+import { ProjectDetailHeader } from "@/components/project/project-detail-header";
 import { ProjectStatusBadge } from "@/components/shared/status-badge";
 import { ProjectStatusForm } from "@/components/dashboard/project-status-form";
 import { ProjectDetailTabs } from "@/components/dashboard/project-detail-tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { ProjectOnboardingHint } from "@/components/dashboard/project-onboarding-hint";
+import { ProjectStatusBanner } from "@/components/dashboard/project-status-banner";
+import { getProjectUnreadMessageCount } from "@/lib/messages/read-cursor";
+import { DocumentsAckForm } from "@/components/dashboard/documents-ack-form";
 import type { Project, Document, AiSearch, AiResult } from "@/types/database";
 import type { CommentWithAuthor } from "@/components/dashboard/comment-thread";
 import type { ProjectTask } from "@/components/dashboard/task-list";
 import type { ProjectUpdate } from "@/components/dashboard/project-timeline";
+import type { ProjectMessage } from "@/lib/actions/messages";
 import { getAiProviderLabel } from "@/lib/ai/config";
 import {
   getStatusOptions,
   resolveStatusChangeMode,
 } from "@/lib/workflow/status-permissions";
+import type { ExpertRecommendationRow } from "@/components/cpi/expert-recommendations-panel";
+import { DeleteProjectButton } from "@/components/dashboard/delete-project-button";
+import { HolderExpertInsights } from "@/components/dashboard/holder-expert-insights";
+import { getChecklistTemplate } from "@/lib/checklists/templates";
+import {
+  buildEffectiveChecklistState,
+  loadAutoChecklistContext,
+} from "@/lib/checklists/load-effective-checklist";
+import { getPatentClaimsDraft } from "@/lib/actions/patent-claims";
+import { getPatentDraft } from "@/lib/actions/patent-draft";
+import { listPatentDraftVersions } from "@/lib/actions/patent-draft-history";
+import {
+  parseMarqueLifecycle,
+  defaultMarqueLifecycle,
+} from "@/lib/workflow/marque-lifecycle";
+import {
+  parseBrevetLifecycle,
+  defaultBrevetLifecycle,
+} from "@/lib/workflow/brevet-lifecycle";
+import {
+  parseDesignLifecycle,
+  defaultDesignLifecycle,
+} from "@/lib/workflow/design-lifecycle";
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   return { title: "Détail projet" };
@@ -29,13 +53,13 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
 
   const { data: project } = await supabase
     .from("projects")
-    .select("*, categories(name)")
+    .select("*, categories(name, slug)")
     .eq("id", params.id)
     .single();
 
   if (!project) notFound();
 
-  const p = project as Project & { categories?: { name: string } | null };
+  const p = project as Project & { categories?: { name: string; slug: string } | null };
 
   const [
     { data: documents },
@@ -43,6 +67,12 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
     { data: tasks },
     { data: updates },
     { data: aiSearches },
+    { data: projectMessages },
+    { data: cpiProfile },
+    unreadMessages,
+    patentClaims,
+    patentDraft,
+    draftVersions,
   ] = await Promise.all([
     supabase
       .from("documents")
@@ -52,12 +82,12 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
       .order("created_at", { ascending: false }),
     supabase
       .from("project_comments")
-      .select("id, body, created_at, author_id, is_legal, profiles(full_name, email)")
+      .select("id, body, created_at, author_id, is_legal, metadata, profiles(full_name, email)")
       .eq("project_id", params.id)
       .order("created_at", { ascending: false }),
     supabase
       .from("project_tasks")
-      .select("id, title, description, status, priority, due_at, project_id")
+      .select("id, title, description, status, priority, due_at, project_id, created_by, assigned_to")
       .eq("project_id", params.id)
       .order("created_at", { ascending: false }),
     supabase
@@ -71,6 +101,19 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
       .select("*")
       .eq("project_id", params.id)
       .order("created_at", { ascending: false }),
+    supabase
+      .from("messages")
+      .select("id, body, created_at, sender_id, profiles(full_name, email)")
+      .eq("project_id", params.id)
+      .eq("message_type", "project_thread")
+      .order("created_at", { ascending: true }),
+    p.assigned_to
+      ? supabase.from("profiles").select("full_name, email").eq("id", p.assigned_to).single()
+      : Promise.resolve({ data: null }),
+    getProjectUnreadMessageCount(params.id, ctx.user.id),
+    getPatentClaimsDraft(params.id),
+    getPatentDraft(params.id),
+    listPatentDraftVersions(params.id),
   ]);
 
   const searchIds = (aiSearches ?? []).map((s) => s.id);
@@ -91,15 +134,47 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
   }, {});
 
   const mappedComments: CommentWithAuthor[] = (comments ?? []).map((c) => {
-    const row = c as CommentWithAuthor & {
-      profiles: CommentWithAuthor["profiles"] | CommentWithAuthor["profiles"][];
+    const row = c as {
+      id: string;
+      body: string;
+      created_at: string;
+      author_id: string;
+      is_legal?: boolean;
+      profiles: CommentWithAuthor["profiles"] | NonNullable<CommentWithAuthor["profiles"]>[];
     };
     const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
-    return { ...row, profiles: profile ?? null };
+    return {
+      id: row.id,
+      body: row.body,
+      created_at: row.created_at,
+      author_id: row.author_id,
+      is_legal: row.is_legal,
+      profiles: profile ?? null,
+    };
   });
 
   const canPostLegal =
     ctx.primaryRole === "cpi_advisor" || ctx.primaryRole === "admin";
+
+  const expertRecommendations: ExpertRecommendationRow[] = (comments ?? [])
+    .filter((c) => (c as { metadata?: { kind?: string } }).metadata?.kind === "expert_recommendation")
+    .map((c) => {
+      const row = c as {
+        id: string;
+        body: string;
+        created_at: string;
+        metadata: ExpertRecommendationRow["metadata"];
+        profiles: { full_name: string | null } | { full_name: string | null }[] | null;
+      };
+      const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
+      return {
+        id: row.id,
+        body: row.body,
+        created_at: row.created_at,
+        metadata: row.metadata,
+        profiles: profile ?? null,
+      };
+    });
 
   const holderMode = resolveStatusChangeMode(ctx, {
     id: p.id,
@@ -110,98 +185,136 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
   });
 
   const activeDocs = (documents ?? []).filter((d) => d.status !== "deleted");
-  const pendingTasks = (tasks ?? []).filter((t) => t.status !== "completed").length;
+
+  const autoCtx = await loadAutoChecklistContext(supabase, params.id, {
+    aiSearches: (aiSearches ?? []) as AiSearch[],
+    patentDraft,
+    patentClaims,
+    activeDocumentCount: activeDocs.length,
+  });
+  const checklist = buildEffectiveChecklistState(p.categories?.slug, p.metadata, autoCtx);
+
+  const pendingTasks = (tasks ?? []).filter(
+    (t) => t.status !== "completed" && t.status !== "cancelled"
+  ).length;
+  const pendingAi = (aiSearches ?? []).filter(
+    (s) => s.status === "pending" || s.status === "processing"
+  ).length;
+  const cpiName =
+    cpiProfile?.full_name ?? cpiProfile?.email ?? null;
 
   const aiProviderLabel = getAiProviderLabel();
+  const marqueLifecycle =
+    parseMarqueLifecycle(p.metadata) ?? defaultMarqueLifecycle();
+  const brevetLifecycle =
+    parseBrevetLifecycle(p.metadata) ?? defaultBrevetLifecycle();
+  const designLifecycle =
+    parseDesignLifecycle(p.metadata) ?? defaultDesignLifecycle();
 
-  const stats = [
-    { icon: FileText, label: "Documents", value: activeDocs.length },
-    { icon: MessageSquare, label: "Commentaires", value: mappedComments.length },
-    { icon: ListChecks, label: "Tâches ouvertes", value: pendingTasks },
-    { icon: Sparkles, label: "Recherches IA", value: (aiSearches ?? []).length },
-  ];
+  const mappedMessages: ProjectMessage[] = (projectMessages ?? []).map((m) => {
+    const row = m as {
+      id: string;
+      body: string;
+      created_at: string;
+      sender_id: string;
+      profiles: ProjectMessage["profiles"] | NonNullable<ProjectMessage["profiles"]>[];
+    };
+    const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
+    return {
+      id: row.id,
+      body: row.body,
+      created_at: row.created_at,
+      sender_id: row.sender_id,
+      profiles: profile ?? null,
+    };
+  });
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" className="-ml-2 text-muted-foreground" asChild>
-          <Link href="/dashboard/projects">
-            <ArrowLeft className="mr-1 h-4 w-4" />
-            Projets
-          </Link>
-        </Button>
-      </div>
-
-      <PageHeader
-        eyebrow={p.categories?.name ?? "Projet"}
+    <div className="space-y-5">
+      <ProjectDetailHeader
+        backHref="/dashboard/projects"
+        backLabel="Mes projets"
+        category={p.categories?.name}
         title={p.title}
-        description={p.reference_code ?? undefined}
+        referenceCode={p.reference_code}
+        lastActivityAt={p.last_activity_at}
       >
         <ProjectStatusBadge status={p.status} />
-      </PageHeader>
+        {holderMode === "holder" && (
+          <DeleteProjectButton projectId={p.id} projectTitle={p.title} />
+        )}
+      </ProjectDetailHeader>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map((s) => (
-          <div key={s.label} className="card-elevated flex items-center gap-4 p-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
-              <s.icon className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{s.value}</p>
-              <p className="text-xs text-muted-foreground">{s.label}</p>
-            </div>
-          </div>
-        ))}
-      </div>
+      <ProjectStatusBanner
+        status={p.status}
+        cpiName={cpiName}
+        checklistPercent={checklist.progress.percent}
+        pendingTasks={pendingTasks}
+        pendingAi={pendingAi}
+        unreadMessages={unreadMessages}
+      />
 
-      {holderMode === "holder" && (
-        <Card className="card-elevated border-0 shadow-none">
-          <CardContent className="pt-6">
-            <ProjectStatusForm
-              projectId={p.id}
-              currentStatus={p.status}
-              allowedStatuses={getStatusOptions("holder", p.status)}
-              mode="holder"
-            />
-          </CardContent>
-        </Card>
+      <ProjectOnboardingHint
+        projectId={p.id}
+        documentCount={activeDocs.length}
+        checklistPercent={checklist.progress.percent}
+      />
+
+      {p.status === "awaiting_documents" && holderMode === "holder" && (
+        <DocumentsAckForm projectId={p.id} />
       )}
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="card-elevated border-0 shadow-none">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base font-semibold">Invention</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">
-            {p.invention_summary || "Aucun résumé renseigné."}
-          </CardContent>
-        </Card>
-        <Card className="card-elevated border-0 shadow-none">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base font-semibold">Besoin</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">
-            {p.need_description || "Aucun besoin renseigné."}
-          </CardContent>
-        </Card>
-      </div>
+      {holderMode === "holder" && (
+        <div className="rounded-lg border border-border/60 bg-muted/25 px-4 py-4 sm:px-5">
+          <ProjectStatusForm
+            projectId={p.id}
+            currentStatus={p.status}
+            allowedStatuses={getStatusOptions("holder", p.status)}
+            mode="holder"
+          />
+        </div>
+      )}
+
+      {expertRecommendations.length > 0 && (
+        <HolderExpertInsights recommendations={expertRecommendations} />
+      )}
 
       <ProjectDetailTabs
         projectId={p.id}
         documents={(documents ?? []) as Document[]}
         comments={mappedComments}
+        messages={mappedMessages}
         tasks={(tasks ?? []) as ProjectTask[]}
         updates={(updates ?? []) as ProjectUpdate[]}
         aiSearches={(aiSearches ?? []) as AiSearch[]}
         resultsBySearch={resultsBySearch}
         canPostLegal={canPostLegal}
+        currentUserId={ctx.user.id}
+        inventionSummary={p.invention_summary}
+        needDescription={p.need_description}
         stats={{
           documents: activeDocs.length,
           comments: mappedComments.length,
           tasks: (tasks ?? []).length,
           aiSearches: (aiSearches ?? []).length,
+          messages: mappedMessages.length,
+          unreadMessages,
+          pendingTasks,
+          checklistPercent: checklist.progress.percent,
         }}
         aiProviderLabel={aiProviderLabel}
+        checklistTemplate={checklist.template}
+        checklistState={checklist.effectiveState}
+        checklistManualChecked={checklist.manualState.checked}
+        checklistAutoChecked={checklist.autoChecked}
+        categorySlug={p.categories?.slug}
+        patentClaims={patentClaims}
+        patentDraft={patentDraft}
+        draftVersions={draftVersions}
+        projectTitle={p.title}
+        marqueLifecycle={marqueLifecycle}
+        brevetLifecycle={brevetLifecycle}
+        designLifecycle={designLifecycle}
       />
     </div>
   );

@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/auth/require-user";
 import { PageHeader } from "@/components/shared/page-header";
-import { ProjectCard } from "@/components/dashboard/project-card";
+import { ProjectTable } from "@/components/dashboard/project-card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { FolderKanban } from "lucide-react";
 import type { Project } from "@/types/database";
@@ -23,6 +23,7 @@ export default async function ExpertAssignedPage() {
   return (
     <div className="space-y-6">
       <PageHeader
+        icon={FolderKanban}
         title="Projets assignés"
         description="Dossiers confiés pour analyse technique et recommandations."
       />
@@ -33,15 +34,7 @@ export default async function ExpertAssignedPage() {
           description="Vos missions d'expertise apparaîtront ici."
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {items.map((p) => (
-            <ProjectCard
-              key={p.id}
-              project={p}
-              href={`/expert/projects/${p.id}`}
-            />
-          ))}
-        </div>
+        <ProjectTable projects={items} hrefFor={(id) => `/expert/projects/${id}`} />
       )}
     </div>
   );

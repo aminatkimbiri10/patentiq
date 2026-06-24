@@ -4,27 +4,30 @@ import type { LucideIcon } from "lucide-react";
 import {
   Bell,
   Briefcase,
+  ClipboardList,
   FileText,
-  FolderKanban,
+  FolderOpen,
   LayoutDashboard,
-  MessageSquare,
+  ListChecks,
+  MessagesSquare,
+  Microscope,
+  BarChart3,
+  NotebookText,
+  ScanEye,
   Search,
   Settings,
   Shield,
   Users,
-  ClipboardList,
-  Microscope,
-  BarChart3,
-  ListChecks,
 } from "lucide-react";
 import type { NavIconName } from "@/config/navigation";
 
+/** Icônes sidebar — variantes épurées, lisibles à 16px */
 export const NAV_ICONS: Record<NavIconName, LucideIcon> = {
   "layout-dashboard": LayoutDashboard,
-  "folder-kanban": FolderKanban,
+  "folder-kanban": FolderOpen,
   search: Search,
   "file-text": FileText,
-  "message-square": MessageSquare,
+  "message-square": MessagesSquare,
   "list-checks": ListChecks,
   bell: Bell,
   shield: Shield,
@@ -34,4 +37,8 @@ export const NAV_ICONS: Record<NavIconName, LucideIcon> = {
   briefcase: Briefcase,
   "bar-chart-3": BarChart3,
   microscope: Microscope,
+  eye: ScanEye,
 };
+
+/** Documentation / aide — exporté pour le pied de sidebar */
+export const SIDEBAR_DOC_ICON = NotebookText;

@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createNotifications } from "@/lib/notifications/create";
+import { notifyUsers } from "@/lib/notifications/notify-user";
 import { pickExpert } from "@/lib/workflow/assign-expert";
 
 export async function handleExpertReviewRequested(
@@ -54,7 +54,7 @@ export async function handleExpertReviewRequested(
     new_value: { expert_id: expert.userId },
   });
 
-  await createNotifications([
+  await notifyUsers([
     {
       userId: expert.userId,
       projectId,

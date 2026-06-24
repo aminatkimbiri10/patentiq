@@ -1,70 +1,111 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
-import { cn } from "@/lib/utils/cn";
 import { BrandLogo } from "@/components/shared/brand-logo";
-import type { NavItem } from "@/config/navigation";
-import { NAV_ICONS } from "@/components/layout/nav-icons";
+import type { AppRole } from "@/types/roles";
+import type { NavItem, NavSection } from "@/config/navigation";
+import { getGuideHrefForRole } from "@/config/navigation";
+import { SidebarFooterLink, SidebarNavItem, SidebarSection } from "@/components/layout/sidebar-nav";
+import { SIDEBAR_DOC_ICON } from "@/components/layout/nav-icons";
 import { Button } from "@/components/ui/button";
+import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
+import { SignOutButton } from "@/components/auth/sign-out-button";
+import { isNavItemActive, navHomeHref } from "@/lib/layout/dashboard-nav";
 
-export function MobileNav({ items }: { items: NavItem[] }) {
+export function MobileNav({
+  items,
+  sections,
+  role,
+}: {
+  items: NavItem[];
+  sections?: NavSection[];
+  role?: AppRole;
+}) {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+  useBodyScrollLock(open);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const homeHref = navHomeHref(items, role);
+  const guideHref = getGuideHrefForRole(role ?? null);
+  const navSections = sections ?? [{ label: "Menu", items }];
+  const docActive = pathname === guideHref || pathname.startsWith(`${guideHref}/`);
 
   return (
     <>
       <Button
         variant="outline"
         size="icon"
-        className="h-10 w-10 shrink-0 rounded-xl lg:hidden"
+        className="h-9 w-9 shrink-0 lg:hidden"
         onClick={() => setOpen(true)}
         aria-label="Ouvrir le menu"
+        aria-expanded={open}
       >
         <Menu className="h-5 w-5" />
       </Button>
 
-      {open && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <button
-            type="button"
-            className="absolute inset-0 bg-background/80 backdrop-blur-sm"
-            aria-label="Fermer"
-            onClick={() => setOpen(false)}
-          />
-          <aside className="absolute left-0 top-0 flex h-full w-[min(100%,300px)] flex-col border-r bg-sidebar shadow-2xl animate-slide-up">
-            <div className="flex h-16 items-center justify-between border-b px-4">
-              <BrandLogo href="/dashboard" size="sm" />
-              <Button variant="ghost" size="icon" onClick={() => setOpen(false)}>
-                <X className="h-5 w-5" />
-              </Button>
-            </div>
-            <nav className="flex-1 space-y-1 overflow-y-auto p-3">
-              {items.map((item) => {
-                const active =
-                  pathname === item.href || pathname.startsWith(`${item.href}/`);
-                const Icon = NAV_ICONS[item.icon];
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium",
-                      active ? "nav-item-active" : "text-muted-foreground hover:bg-accent"
-                    )}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {item.title}
-                  </Link>
-                );
-              })}
-            </nav>
-          </aside>
-        </div>
-      )}
+      {open &&
+        mounted &&
+        createPortal(
+          <div className="fixed inset-0 z-[100] lg:hidden">
+            <button
+              type="button"
+              className="absolute inset-0 bg-black/40"
+              aria-label="Fermer le menu"
+              onClick={() => setOpen(false)}
+            />
+            <aside
+              className="enterprise-sidebar absolute left-0 top-0 flex h-full w-[min(100vw,280px)] max-w-[85vw] flex-col safe-top safe-bottom"
+              aria-label="Menu navigation"
+            >
+              <div className="sidebar-header justify-between">
+                <BrandLogo href={homeHref} size="lg" variant="flat" context="organization" />
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="sidebar-icon-btn"
+                  aria-label="Fermer"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <nav className="enterprise-sidebar-scroll flex-1 overflow-y-auto py-4">
+                {navSections.map((section, index) => (
+                  <SidebarSection key={section.label} label={section.label} isFirst={index === 0}>
+                    {section.items.map((item) => (
+                      <SidebarNavItem
+                        key={item.href}
+                        item={item}
+                        active={isNavItemActive(pathname, item.href)}
+                        onNavigate={() => setOpen(false)}
+                      />
+                    ))}
+                  </SidebarSection>
+                ))}
+              </nav>
+
+              <div className="sidebar-footer">
+                <SidebarFooterLink
+                  href={guideHref}
+                  icon={SIDEBAR_DOC_ICON}
+                  label="Documentation"
+                  active={docActive}
+                  onNavigate={() => setOpen(false)}
+                />
+                <SignOutButton variant="sidebar" />
+              </div>
+            </aside>
+          </div>,
+          document.body
+        )}
     </>
   );
 }

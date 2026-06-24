@@ -1,0 +1,39 @@
+name: AI Worker
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  process-pending:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Process pending AI searches
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          AI_WORKER_SECRET: ${{ secrets.AI_WORKER_SECRET }}
+        run: |
+          if [ -z "$APP_URL" ] || [ -z "$AI_WORKER_SECRET" ]; then
+            echo "Skip: APP_URL or AI_WORKER_SECRET not configured in GitHub secrets"
+            exit 0
+          fi
+          curl -sS -f -X POST "${APP_URL}/api/ai/worker" \
+            -H "Authorization: Bearer ${AI_WORKER_SECRET}" \
+            -H "Content-Type: application/json" \
+            -d '{"limit":5}'
+
+      - name: Health check (worker backlog)
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+        run: |
+          if [ -z "$APP_URL" ]; then
+            echo "Skip: APP_URL not configured"
+            exit 0
+          fi
+          body=$(curl -sS "${APP_URL}/api/health")
+          echo "$body"
+          stale=$(echo "$body" | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{const j=JSON.parse(d);console.log(j.checks?.aiWorker?.stale??0)})")
+          if [ "$stale" -gt 0 ]; then
+            echo "::warning::AI worker backlog: $stale recherche(s) en attente depuis >15 min"
+          fi
