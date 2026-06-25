@@ -1,17 +1,18 @@
 import type { MetadataRoute } from "next";
+import { i2paBrand } from "@/config/i2pa-brand";
 import { siteConfig } from "@/config/site";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: siteConfig.name,
-    short_name: "I2PA",
+    name: siteConfig.productLabel,
+    short_name: siteConfig.name,
     description: siteConfig.description,
     start_url: "/dashboard",
     scope: "/",
     display: "standalone",
     orientation: "portrait-primary",
-    background_color: "#f8fafc",
-    theme_color: "#0A66C2",
+    background_color: "#0a0a0a",
+    theme_color: i2paBrand.primary,
     lang: "fr",
     categories: ["business", "productivity"],
     icons: [
@@ -22,8 +23,14 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: "any",
       },
       {
-        src: "/icons/icon-maskable.svg",
+        src: "/icons/i2pa-mark.svg",
         sizes: "any",
+        type: "image/svg+xml",
+        purpose: "any",
+      },
+      {
+        src: "/icons/icon-maskable.svg",
+        sizes: "512x512",
         type: "image/svg+xml",
         purpose: "maskable",
       },

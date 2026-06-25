@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import { Providers } from "@/components/shared/providers";
 import { ThemeScript } from "@/components/shared/theme-script";
 import { siteConfig } from "@/config/site";
+import { i2paBrand } from "@/config/i2pa-brand";
 import "./globals.css";
 
 const fontSans = Plus_Jakarta_Sans({
@@ -26,10 +27,11 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/logos/i2pa.png", type: "image/png" },
-      { url: "/icons/icon.svg", type: "image/svg+xml" },
+      { url: "/icons/i2pa-mark.svg", type: "image/svg+xml" },
+      { url: "/logos/i2pa.png", type: "image/png", sizes: "512x512" },
     ],
     apple: [{ url: "/logos/i2pa.png", type: "image/png" }],
+    shortcut: [{ url: "/icons/i2pa-mark.svg", type: "image/svg+xml" }],
   },
 };
 
@@ -38,8 +40,8 @@ export const viewport = {
   initialScale: 1,
   maximumScale: 5,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#0A66C2" },
-    { media: "(prefers-color-scheme: dark)", color: "#1a3d5c" },
+    { media: "(prefers-color-scheme: light)", color: i2paBrand.primary },
+    { media: "(prefers-color-scheme: dark)", color: i2paBrand.primaryDark },
   ],
 };
 
