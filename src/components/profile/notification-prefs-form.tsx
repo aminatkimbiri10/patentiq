@@ -27,7 +27,7 @@ export function NotificationPrefsForm({ prefs }: { prefs: NotificationPrefs }) {
 
   return (
     <form action={formAction}>
-      <Card className="card-elevated border-0 shadow-none">
+      <Card className="card-elevated bg-card">
         <CardHeader>
           <CardTitle className="text-base">Notifications</CardTitle>
           <CardDescription>

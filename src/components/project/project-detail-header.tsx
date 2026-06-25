@@ -51,7 +51,7 @@ export function ProjectDetailHeader({
               {category}
             </p>
           )}
-          <h1 className="text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
+          <h1 className="break-words text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
             {title}
           </h1>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">

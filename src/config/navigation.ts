@@ -35,18 +35,24 @@ const HOLDER_SECTIONS: NavSection[] = [
     items: [
       { title: "Accueil", href: "/dashboard", icon: "layout-dashboard" },
       { title: "Mes projets", href: "/dashboard/projects", icon: "folder-kanban" },
+      { title: "Tâches", href: "/dashboard/tasks", icon: "list-checks" },
+      { title: "Documents", href: "/dashboard/documents", icon: "file-text" },
     ],
   },
   {
     label: "Propriété intellectuelle",
     items: [
+      { title: "Recherche & IA", href: "/dashboard/search", icon: "search" },
       { title: "Surveillance", href: "/dashboard/surveillance", icon: "eye" },
       { title: "Préparer dépôt OMPIC", href: "/dashboard/preparer-depot-ompic", icon: "file-text" },
     ],
   },
   {
     label: "Communication",
-    items: [{ title: "Messages", href: "/dashboard/messages", icon: "message-square" }],
+    items: [
+      { title: "Messages", href: "/dashboard/messages", icon: "message-square" },
+      { title: "Notifications", href: "/dashboard/notifications", icon: "bell" },
+    ],
   },
 ];
 

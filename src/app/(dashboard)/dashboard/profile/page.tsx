@@ -2,13 +2,15 @@ import Link from "next/link";
 import { UserCircle } from "lucide-react";
 import { requireUser } from "@/lib/auth/require-user";
 import { PageHeader } from "@/components/shared/page-header";
+import { DashboardPageFrame } from "@/components/dashboard/dashboard-page-frame";
 import { AvatarUpload } from "@/components/profile/avatar-upload";
 import { ProfileForm } from "@/components/profile/profile-form";
 import { NotificationPrefsForm } from "@/components/profile/notification-prefs-form";
 import { parseNotificationPrefs } from "@/lib/notifications/prefs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";import { getAvatarSignedUrl } from "@/lib/storage/avatar";
+import { Card, CardContent } from "@/components/ui/card";
+import { getAvatarSignedUrl } from "@/lib/storage/avatar";
 import { ROLE_LABELS } from "@/types/roles";
 import type { AppRole } from "@/types/roles";
 
@@ -37,14 +39,17 @@ export default async function ProfilePage() {
   const avatarUrl = await getAvatarSignedUrl(p?.avatar_url);
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <DashboardPageFrame className="mx-auto w-full max-w-2xl">
       <PageHeader
+        variant="elevated"
+        bordered={false}
         icon={UserCircle}
+        eyebrow="Compte"
         title="Mon profil"
-        description="Gérez vos informations et votre photo."
+        description="Informations personnelles, photo et préférences de notification."
       />
 
-      <Card className="card-elevated border-0 shadow-none">
+      <Card className="card-elevated bg-card">
         <CardContent className="flex flex-col items-center gap-4 pt-6 sm:flex-row sm:items-start sm:gap-8">
           <AvatarUpload
             initials={getInitials(p?.full_name, ctx.user.email ?? "")}
@@ -64,7 +69,7 @@ export default async function ProfilePage() {
       <ProfileForm email={ctx.user.email} profile={p} />
       <NotificationPrefsForm prefs={parseNotificationPrefs(p?.metadata)} />
 
-      <Card className="card-elevated border-0 shadow-none">
+      <Card className="card-elevated bg-card">
         <CardContent className="flex flex-col gap-3 pt-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="font-medium">Sécurité du compte</p>
@@ -77,5 +82,6 @@ export default async function ProfilePage() {
           </Button>
         </CardContent>
       </Card>
-    </div>  );
+    </DashboardPageFrame>
+  );
 }

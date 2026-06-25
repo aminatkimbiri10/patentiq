@@ -4,7 +4,8 @@ import { fr } from "date-fns/locale";
 import { requireUser } from "@/lib/auth/require-user";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/shared/page-header";
-import { DashboardPanel } from "@/components/dashboard/dashboard-panel";
+import { DashboardPageFrame } from "@/components/dashboard/dashboard-page-frame";
+import { ListPanel } from "@/components/shared/list-panel";
 import { EmptyState } from "@/components/shared/empty-state";
 import { MessageSquare, ArrowUpRight, FolderKanban } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -62,12 +63,18 @@ export default async function MessagesPage({
   const highlightId = searchParams.project;
 
   return (
-    <>
+    <DashboardPageFrame>
       <PageHeader
+        variant="elevated"
+        bordered={false}
         icon={MessageSquare}
         eyebrow="Communication"
         title="Messages"
-        description="Conversations par dossier — porteur, CPI et expert."
+        description={
+          threads.length > 0
+            ? `${threads.length} conversation${threads.length !== 1 ? "s" : ""} — porteur, CPI et expert.`
+            : "Conversations par dossier — porteur, CPI et expert."
+        }
       />
 
       {threads.length === 0 ? (
@@ -75,6 +82,7 @@ export default async function MessagesPage({
           icon={MessageSquare}
           title="Aucune conversation"
           description="Échanges → Messages dans la fiche projet pour contacter votre CPI."
+          className="enterprise-panel"
           action={
             <Button variant="outline" asChild>
               <Link href="/dashboard/projects">
@@ -85,46 +93,40 @@ export default async function MessagesPage({
           }
         />
       ) : (
-        <DashboardPanel
-          title={`${threads.length} conversation${threads.length !== 1 ? "s" : ""}`}
-          description="Derniers fils de discussion par dossier."
-          icon={MessageSquare}
-        >
-          <div className="-mx-5 -mb-5 sm:-mx-6 sm:-mb-6">
-            {threads.map((t) => (
-              <Link
-                key={t.projectId}
-                href={`/dashboard/projects/${t.projectId}?tab=echanges&section=messages`}
-                className={cn(
-                  "dash-list-row group",
-                  highlightId === t.projectId && "bg-primary/[0.04]"
-                )}
-              >
-                <div className="dash-avatar">
-                  <MessageSquare className="h-5 w-5" />
+        <ListPanel>
+          {threads.map((t) => (
+            <Link
+              key={t.projectId}
+              href={`/dashboard/projects/${t.projectId}?tab=echanges&section=messages`}
+              className={cn(
+                "dash-list-row group",
+                highlightId === t.projectId && "bg-primary/[0.04]"
+              )}
+            >
+              <div className="dash-avatar">
+                <MessageSquare className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-semibold tracking-tight group-hover:text-primary">
+                    {t.title}
+                  </p>
+                  {t.ref && (
+                    <span className="rounded-md bg-muted px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                      {t.ref}
+                    </span>
+                  )}
                 </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-semibold tracking-tight group-hover:text-primary">
-                      {t.title}
-                    </p>
-                    {t.ref && (
-                      <span className="rounded-md bg-muted px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-                        {t.ref}
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-1 line-clamp-1 text-sm text-muted-foreground">{t.preview}</p>
-                </div>
-                <div className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
-                  {formatDistanceToNow(new Date(t.at), { addSuffix: true, locale: fr })}
-                  <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary" />
-                </div>
-              </Link>
-            ))}
-          </div>
-        </DashboardPanel>
+                <p className="mt-1 line-clamp-1 text-sm text-muted-foreground">{t.preview}</p>
+              </div>
+              <div className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
+                {formatDistanceToNow(new Date(t.at), { addSuffix: true, locale: fr })}
+                <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary" />
+              </div>
+            </Link>
+          ))}
+        </ListPanel>
       )}
-    </>
+    </DashboardPageFrame>
   );
 }

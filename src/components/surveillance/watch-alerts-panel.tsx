@@ -2,6 +2,8 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
 import { AlertTriangle, ChevronDown, Scale } from "lucide-react";
 import { updateAlertStatus, type WatchAlertRow } from "@/lib/actions/watchlist";
 import { notifyActionResult } from "@/hooks/use-action-toast";
@@ -14,6 +16,25 @@ import {
   IP_ALERT_STATUS_LABELS,
   IP_ASSET_TYPE_LABELS,
 } from "@/types/surveillance";
+import { cn } from "@/lib/utils/cn";
+
+const OPEN_PAGE_SIZE = 5;
+const OPEN_PAGE_STEP = 10;
+
+function alertSeverity(score: number | null): "critical" | "high" | "medium" | "low" {
+  const s = score ?? 0;
+  if (s >= 0.85) return "critical";
+  if (s >= 0.7) return "high";
+  if (s >= 0.5) return "medium";
+  return "low";
+}
+
+const SEVERITY_BORDER: Record<ReturnType<typeof alertSeverity>, string> = {
+  critical: "border-l-destructive",
+  high: "border-l-amber-500",
+  medium: "border-l-muted-foreground/40",
+  low: "border-l-border",
+};
 
 function OppositionHint({ alert }: { alert: WatchAlertRow }) {
   const assetType = alert.ip_watchlist?.asset_type;
@@ -55,7 +76,7 @@ function OppositionHint({ alert }: { alert: WatchAlertRow }) {
   );
 }
 
-function AlertCard({
+function AlertDetails({
   alert,
   pending,
   onStatus,
@@ -67,29 +88,7 @@ function AlertCard({
   const isNew = alert.status === "new";
 
   return (
-    <div
-      className={`rounded-xl border p-4 space-y-3 ${
-        isNew ? "border-amber-300/60 bg-amber-50/30 dark:border-amber-900/50 dark:bg-amber-950/20" : "border-border/60 bg-card"
-      }`}
-    >
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="font-medium">{alert.matched_title}</span>
-        <Badge variant={isNew ? "destructive" : "secondary"}>
-          {IP_ALERT_STATUS_LABELS[alert.status]}
-        </Badge>
-        {alert.ip_watchlist && (
-          <Badge variant="outline">{IP_ASSET_TYPE_LABELS[alert.ip_watchlist.asset_type]}</Badge>
-        )}
-        {alert.similarity_score != null && (
-          <span className="text-xs text-muted-foreground">
-            {Math.round(Number(alert.similarity_score) * 100)} % similarité
-            {alert.metadata?.logo_score != null && (
-              <> · visuel {Math.round(Number(alert.metadata.logo_score) * 100)} %</>
-            )}
-          </span>
-        )}
-      </div>
-
+    <div className="space-y-3 border-t border-border/40 bg-muted/10 px-4 py-3">
       {alert.ip_watchlist && (
         <p className="text-xs text-muted-foreground">
           Votre actif : <strong>{alert.ip_watchlist.title}</strong>
@@ -97,35 +96,30 @@ function AlertCard({
         </p>
       )}
       {alert.summary && (
-        <p className="line-clamp-2 text-sm text-muted-foreground">{alert.summary}</p>
+        <p className="text-sm leading-relaxed text-muted-foreground">{alert.summary}</p>
       )}
 
       {isNew && <OppositionHint alert={alert} />}
-
       <OppositionDossierPanel alert={alert} />
 
       {isNew && (
-        <div className="space-y-2 border-t border-border/40 pt-3">
+        <div className="space-y-2 pt-1">
           <p className="text-xs font-medium text-muted-foreground">Que faire de cette alerte ?</p>
-          <div className="grid gap-2 sm:grid-cols-3">
-            {(Object.keys(IP_ALERT_ACTIONS) as Array<keyof typeof IP_ALERT_ACTIONS>).map(
-              (key) => {
-                const action = IP_ALERT_ACTIONS[key];
-                return (
-                  <Button
-                    key={key}
-                    size="sm"
-                    variant={action.variant}
-                    disabled={pending}
-                    className="h-auto flex-col items-start gap-0.5 px-3 py-2 text-left whitespace-normal"
-                    onClick={() => onStatus(alert.id, key)}
-                  >
-                    <span className="font-medium">{action.label}</span>
-                    <span className="text-[10px] font-normal opacity-80">{action.hint}</span>
-                  </Button>
-                );
-              }
-            )}
+          <div className="flex flex-wrap gap-2">
+            {(Object.keys(IP_ALERT_ACTIONS) as Array<keyof typeof IP_ALERT_ACTIONS>).map((key) => {
+              const action = IP_ALERT_ACTIONS[key];
+              return (
+                <Button
+                  key={key}
+                  size="sm"
+                  variant={action.variant}
+                  disabled={pending}
+                  onClick={() => onStatus(alert.id, key)}
+                >
+                  {action.label}
+                </Button>
+              );
+            })}
           </div>
         </div>
       )}
@@ -133,23 +127,122 @@ function AlertCard({
   );
 }
 
+function AlertRow({
+  alert,
+  expanded,
+  pending,
+  onToggle,
+  onStatus,
+}: {
+  alert: WatchAlertRow;
+  expanded: boolean;
+  pending: boolean;
+  onToggle: () => void;
+  onStatus: (id: string, status: WatchAlertRow["status"]) => void;
+}) {
+  const isNew = alert.status === "new";
+  const severity = alertSeverity(alert.similarity_score);
+  const scorePct =
+    alert.similarity_score != null ? Math.round(Number(alert.similarity_score) * 100) : null;
+
+  return (
+    <div
+      className={cn(
+        "overflow-hidden rounded-lg border border-border/60 bg-card",
+        isNew && severity === "critical" && "ring-1 ring-destructive/20",
+        expanded && "shadow-sm"
+      )}
+    >
+      <button
+        type="button"
+        onClick={onToggle}
+        className={cn(
+          "flex w-full items-start gap-3 border-l-[3px] px-3 py-2.5 text-left transition-colors hover:bg-muted/30 sm:items-center sm:py-2",
+          SEVERITY_BORDER[severity]
+        )}
+      >
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span className="text-sm font-medium text-foreground">{alert.matched_title}</span>
+            {scorePct != null && (
+              <Badge
+                variant={severity === "critical" ? "destructive" : "secondary"}
+                className="h-5 px-1.5 text-[10px] tabular-nums"
+              >
+                {scorePct} %
+              </Badge>
+            )}
+            {!isNew && (
+              <Badge variant="outline" className="h-5 px-1.5 text-[10px]">
+                {IP_ALERT_STATUS_LABELS[alert.status]}
+              </Badge>
+            )}
+            {alert.ip_watchlist && (
+              <Badge variant="outline" className="hidden h-5 px-1.5 text-[10px] sm:inline-flex">
+                {IP_ASSET_TYPE_LABELS[alert.ip_watchlist.asset_type]}
+              </Badge>
+            )}
+          </div>
+          <p className="mt-0.5 truncate text-xs text-muted-foreground">
+            {alert.ip_watchlist?.title ?? alert.matched_source}
+            {alert.matched_ref && ` · ${alert.matched_ref}`}
+          </p>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <time className="hidden text-[11px] tabular-nums text-muted-foreground sm:block">
+            {formatDistanceToNow(new Date(alert.created_at), { addSuffix: true, locale: fr })}
+          </time>
+          <ChevronDown
+            className={cn(
+              "h-4 w-4 text-muted-foreground transition-transform",
+              expanded && "rotate-180"
+            )}
+          />
+        </div>
+      </button>
+
+      {expanded && (
+        <AlertDetails alert={alert} pending={pending} onStatus={onStatus} />
+      )}
+    </div>
+  );
+}
+
+function sortByPriority(alerts: WatchAlertRow[]): WatchAlertRow[] {
+  return [...alerts].sort(
+    (a, b) => (b.similarity_score ?? 0) - (a.similarity_score ?? 0)
+  );
+}
+
 export function WatchAlertsPanel({ alerts }: { alerts: WatchAlertRow[] }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [showHistory, setShowHistory] = useState(false);
+  const [visibleOpenCount, setVisibleOpenCount] = useState(OPEN_PAGE_SIZE);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const { open, history } = useMemo(() => {
-    const o = alerts.filter((a) => a.status === "new");
-    const h = alerts.filter((a) => a.status !== "new");
+    const o = sortByPriority(alerts.filter((a) => a.status === "new"));
+    const h = sortByPriority(alerts.filter((a) => a.status !== "new"));
     return { open: o, history: h };
   }, [alerts]);
+
+  const visibleOpen = open.slice(0, visibleOpenCount);
+  const hiddenOpenCount = open.length - visibleOpen.length;
 
   function handleStatus(id: string, status: WatchAlertRow["status"]) {
     startTransition(async () => {
       const result = await updateAlertStatus(id, status);
       notifyActionResult(result);
-      if (result.success) router.refresh();
+      if (result.success) {
+        setExpandedId(null);
+        router.refresh();
+      }
     });
+  }
+
+  function toggleExpanded(id: string) {
+    setExpandedId((current) => (current === id ? null : id));
   }
 
   if (!alerts.length) {
@@ -157,8 +250,8 @@ export function WatchAlertsPanel({ alerts }: { alerts: WatchAlertRow[] }) {
       <EmptyState
         icon={AlertTriangle}
         title="Aucune alerte"
-        description="Lancez un scan depuis l'onglet Portefeuille pour détecter des similarités OMPIC."
-        className="py-12"
+        description="Lancez un scan depuis le portefeuille pour détecter des similarités OMPIC."
+        className="py-10"
         action={
           <p className="text-sm text-muted-foreground">
             Ajoutez d&apos;abord un actif protégé, puis cliquez sur <strong>Scanner OMPIC</strong>.
@@ -168,24 +261,73 @@ export function WatchAlertsPanel({ alerts }: { alerts: WatchAlertRow[] }) {
     );
   }
 
-  const historyPreview = showHistory || history.length <= 3 ? history : history.slice(0, 3);
-
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {open.length > 0 && (
-        <div className="space-y-3">
-          <p className="flex items-center gap-2 text-sm font-medium text-amber-700 dark:text-amber-400">
-            <AlertTriangle className="h-4 w-4" />
-            {open.length} alerte(s) à traiter
-          </p>
-          {open.map((alert) => (
-            <AlertCard
-              key={alert.id}
-              alert={alert}
-              pending={pending}
-              onStatus={handleStatus}
-            />
-          ))}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <p className="flex items-center gap-2 text-sm font-medium text-amber-700 dark:text-amber-400">
+              <AlertTriangle className="h-4 w-4 shrink-0" />
+              {open.length} à traiter
+              {open.length > OPEN_PAGE_SIZE && (
+                <span className="font-normal text-muted-foreground">
+                  · {visibleOpen.length} affichée{visibleOpen.length !== 1 ? "s" : ""}
+                </span>
+              )}
+            </p>
+            {expandedId && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 text-xs"
+                onClick={() => setExpandedId(null)}
+              >
+                Tout replier
+              </Button>
+            )}
+          </div>
+
+          <div className="space-y-1.5">
+            {visibleOpen.map((alert) => (
+              <AlertRow
+                key={alert.id}
+                alert={alert}
+                expanded={expandedId === alert.id}
+                pending={pending}
+                onToggle={() => toggleExpanded(alert.id)}
+                onStatus={handleStatus}
+              />
+            ))}
+          </div>
+
+          {hiddenOpenCount > 0 && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={() =>
+                setVisibleOpenCount((n) => Math.min(n + OPEN_PAGE_STEP, open.length))
+              }
+            >
+              Afficher {Math.min(hiddenOpenCount, OPEN_PAGE_STEP)} alerte
+              {Math.min(hiddenOpenCount, OPEN_PAGE_STEP) !== 1 ? "s" : ""} de plus
+              {hiddenOpenCount > OPEN_PAGE_STEP && ` (${hiddenOpenCount} restantes)`}
+            </Button>
+          )}
+
+          {visibleOpenCount > OPEN_PAGE_SIZE && hiddenOpenCount === 0 && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="w-full text-xs"
+              onClick={() => setVisibleOpenCount(OPEN_PAGE_SIZE)}
+            >
+              Réduire la liste
+            </Button>
+          )}
         </div>
       )}
 
@@ -196,7 +338,7 @@ export function WatchAlertsPanel({ alerts }: { alerts: WatchAlertRow[] }) {
       )}
 
       {history.length > 0 && (
-        <div className="space-y-2">
+        <div className="pt-1">
           <button
             type="button"
             className="flex w-full items-center justify-between rounded-lg border border-border/60 px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/40"
@@ -204,30 +346,21 @@ export function WatchAlertsPanel({ alerts }: { alerts: WatchAlertRow[] }) {
           >
             <span>Historique ({history.length})</span>
             <ChevronDown
-              className={`h-4 w-4 transition-transform ${showHistory ? "rotate-180" : ""}`}
+              className={cn("h-4 w-4 transition-transform", showHistory && "rotate-180")}
             />
           </button>
-          {(showHistory || history.length <= 3 || historyPreview.length > 0) && (
-            <div className="space-y-2">
-              {historyPreview.map((alert) => (
-                <AlertCard
+          {showHistory && (
+            <div className="mt-2 max-h-80 space-y-1.5 overflow-y-auto">
+              {history.map((alert) => (
+                <AlertRow
                   key={alert.id}
                   alert={alert}
+                  expanded={expandedId === alert.id}
                   pending={pending}
+                  onToggle={() => toggleExpanded(alert.id)}
                   onStatus={handleStatus}
                 />
               ))}
-              {!showHistory && history.length > 3 && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="w-full"
-                  onClick={() => setShowHistory(true)}
-                >
-                  Voir {history.length - 3} alerte(s) de plus
-                </Button>
-              )}
             </div>
           )}
         </div>

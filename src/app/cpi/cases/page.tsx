@@ -12,11 +12,16 @@ export default async function CpiCasesPage() {
   const items = await getCpiProjects(ctx.user.id);
 
   return (
-    <div className="space-y-6">
+    <div className="dash-page w-full min-w-0 space-y-6">
       <PageHeader
         icon={Briefcase}
+        eyebrow="Dossiers clients"
         title="Mes dossiers"
-        description="Projets assignés pour revue et accompagnement CPI."
+        description={
+          items.length > 0
+            ? `${items.length} projet${items.length !== 1 ? "s" : ""} assigné${items.length !== 1 ? "s" : ""} — revue et accompagnement CPI.`
+            : "Projets assignés pour revue et accompagnement CPI."
+        }
       />
       {items.length === 0 ? (
         <EmptyState

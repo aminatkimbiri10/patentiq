@@ -32,7 +32,7 @@ export default async function AdminProjectDetailPage({ params }: { params: { id:
   }));
 
   return (
-    <div className="space-y-6">
+    <div className="dash-page w-full min-w-0 space-y-6">
       <Button variant="ghost" size="sm" className="-ml-2 text-muted-foreground" asChild>
         <Link href="/admin/projects">
           <ArrowLeft className="mr-1 h-4 w-4" />

@@ -16,7 +16,7 @@ export default async function CpiExportDossierPage({ params }: { params: { id: s
   const loaded = await loadPatentDossierForExport(supabase, params.id);
   if (!loaded.ok) {
     if (loaded.status === 404) notFound();
-    redirect(`/cpi/cases/${params.id}?tab=dossier&section=parcours-pi&pi=redaction`);
+    redirect(`/cpi/cases/${params.id}?tab=parcours&pi=redaction`);
   }
 
   return (

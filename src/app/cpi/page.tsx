@@ -1,17 +1,11 @@
-import Link from "next/link";
-import { PageHeader } from "@/components/shared/page-header";
-import { KpiCards } from "@/components/dashboard/kpi-cards";
-import { ProjectTable } from "@/components/dashboard/project-card";
-import { CpiQuickActions } from "@/components/cpi/cpi-quick-actions";
-import { CpiOnboarding } from "@/components/cpi/cpi-onboarding";
-import { StaleCasesAlert } from "@/components/cpi/stale-cases-alert";
-import { DashboardSection } from "@/components/dashboard/dashboard-section";
-import { DashboardLinkCard } from "@/components/dashboard/dashboard-link-card";
 import { requireUser } from "@/lib/auth/require-user";
-import { getCpiProjects, computeCpiStats } from "@/lib/cpi/queries";
+import { getCpiProjects } from "@/lib/cpi/queries";
+import { getDashboardOverview } from "@/lib/dashboard/overview-data";
 import { listIpDeadlinesForUser } from "@/lib/actions/ip-deadlines";
 import { IpDeadlinesPanel } from "@/components/surveillance/ip-deadlines-panel";
-import { Briefcase, FileText, FlaskConical, Scale, Columns3, Eye } from "lucide-react";
+import { CpiOnboarding } from "@/components/cpi/cpi-onboarding";
+import { StaleCasesAlert } from "@/components/cpi/stale-cases-alert";
+import { RoleDashboardOverview } from "@/components/dashboard/overview/role-dashboard-overview";
 import type { Project } from "@/types/database";
 
 export const metadata = { title: "Espace CPI" };
@@ -20,11 +14,11 @@ const STALE_DAYS = 7;
 
 export default async function CpiDashboardPage() {
   const ctx = await requireUser();
-  const [projects, ipDeadlines] = await Promise.all([
+  const [overview, projects, ipDeadlines] = await Promise.all([
+    getDashboardOverview(ctx.user.id, "cpi_advisor", ctx.profile ?? undefined),
     getCpiProjects(ctx.user.id),
     listIpDeadlinesForUser(8, ctx.user.id, true),
   ]);
-  const stats = computeCpiStats(projects);
 
   const staleMs = STALE_DAYS * 24 * 60 * 60 * 1000;
   const now = Date.now();
@@ -32,82 +26,27 @@ export default async function CpiDashboardPage() {
     (p) =>
       ["awaiting_documents", "expert_review"].includes(p.status) &&
       now - new Date(p.last_activity_at).getTime() > staleMs
-  );
+  ) as Project[];
 
-  const priority = projects
-    .filter((p) => ["cpi_review", "expert_review", "in_review"].includes(p.status))
-    .slice(0, 5) as Project[];
+  const activeCount = overview.heroHighlights[0]?.value ?? 0;
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        icon={Briefcase}
-        eyebrow="Espace conseiller"
-        title="Conseiller PI"
-        description="Pilotage des dossiers clients — revue, surveillance et échéances OMPIC."
-      />
-
-      <KpiCards
-        items={[
-          { title: "Dossiers actifs", value: stats.activeCount, icon: Briefcase },
-          { title: "En revue", value: stats.inReviewCount, icon: FileText },
-          { title: "Revue expert", value: stats.awaitingExpertCount, icon: FlaskConical },
-          { title: "Décision CPI", value: stats.cpiReviewCount, icon: Scale },
-        ]}
-      />
-
-      <CpiQuickActions />
-      <StaleCasesAlert projects={staleProjects} />
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
-          {priority.length > 0 && (
-            <DashboardSection
-              title="À traiter en priorité"
-              description="Dossiers en revue ou en attente de décision."
-              actionHref="/cpi/cases"
-            >
-              <ProjectTable
-                projects={priority}
-                hrefFor={(id) => `/cpi/cases/${id}`}
-                embedded
-              />
-            </DashboardSection>
-          )}
-
-          <DashboardSection title="Raccourcis" description="Accès rapide aux outils CPI.">
-            <DashboardLinkCard
-              href="/cpi/surveillance"
-              title="Surveillance"
-              description="Veille marques & brevets — OMPIC live"
-              icon={Eye}
-            />
-            <DashboardLinkCard
-              href="/cpi/kanban"
-              title="Kanban"
-              description={`Pipeline — ${stats.activeCount} actif${stats.activeCount !== 1 ? "s" : ""}`}
-              icon={Columns3}
-            />
-            <DashboardLinkCard
-              href="/cpi/review"
-              title="File de revue"
-              description={`${stats.cpiReviewCount} en décision`}
-              icon={FileText}
-            />
-            <DashboardLinkCard
-              href="/cpi/reports"
-              title="Rapports"
-              description={`${stats.decidedCount} décision${stats.decidedCount !== 1 ? "s" : ""}`}
-              icon={Briefcase}
-            />
-          </DashboardSection>
-        </div>
-
-        <aside className="space-y-6">
-          <CpiOnboarding activeCaseCount={stats.activeCount} />
-          <IpDeadlinesPanel deadlines={ipDeadlines} viewer="cpi" compact />
-        </aside>
-      </div>
-    </div>
+    <RoleDashboardOverview
+      data={overview}
+      config={{
+        layout: "home",
+        projectsTitle: "Dossiers récents",
+        projectsDescription: "Dossiers actifs et en revue.",
+        projectsHref: "/cpi/cases",
+        projectHrefFor: (id) => `/cpi/cases/${id}`,
+        extraBeforeGrid: <StaleCasesAlert projects={staleProjects} />,
+        extraSidebar: (
+          <>
+            <CpiOnboarding activeCaseCount={Number(activeCount)} />
+            <IpDeadlinesPanel deadlines={ipDeadlines} viewer="cpi" compact />
+          </>
+        ),
+      }}
+    />
   );
 }

@@ -1,12 +1,13 @@
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
 import { requireUser } from "@/lib/auth/require-user";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/shared/page-header";
+import { DashboardPageFrame } from "@/components/dashboard/dashboard-page-frame";
+import { DashboardSection } from "@/components/dashboard/dashboard-section";
 import { DocumentList } from "@/components/documents/document-list";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
-import { FileText, FolderPlus } from "lucide-react";
+import { FileText, FolderPlus, FolderKanban } from "lucide-react";
 import type { Document } from "@/types/database";
 
 export const metadata = { title: "Documents" };
@@ -45,17 +46,26 @@ export default async function DocumentsPage() {
   }, {});
 
   return (
-    <div className="space-y-6">
+    <DashboardPageFrame>
       <PageHeader
+        variant="elevated"
+        bordered={false}
         icon={FileText}
+        eyebrow="Bibliothèque"
         title="Documents"
-        description="Tous les fichiers de vos projets — stockage privé sécurisé."
+        description={
+          documents.length > 0
+            ? `${documents.length} fichier${documents.length !== 1 ? "s" : ""} — stockage privé sécurisé.`
+            : "Tous les fichiers de vos projets — stockage privé sécurisé."
+        }
       />
+
       {documents.length === 0 ? (
         <EmptyState
           icon={FileText}
           title="Aucun document"
-          description="Ouvrez un projet → onglet Dossier → déposez vos fichiers (PDF, TXT, images)."
+          description="Ouvrez un projet → onglet Documents → déposez vos fichiers (PDF, TXT, images)."
+          className="enterprise-panel"
           action={
             projectIds.length > 0 ? (
               <Button asChild>
@@ -74,27 +84,27 @@ export default async function DocumentsPage() {
           }
         />
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-6">
           {Object.entries(byProject).map(([projectId, docs]) => {
             const proj = projectMap.get(projectId);
+            const label = proj?.ref ? `${proj.title} · ${proj.ref}` : (proj?.title ?? "Projet");
             return (
-              <section key={projectId}>
-                <Link
-                  href={`/dashboard/projects/${projectId}`}
-                  className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
-                >
-                  {proj?.title ?? "Projet"}
-                  {proj?.ref && (
-                    <span className="font-normal text-muted-foreground">· {proj.ref}</span>
-                  )}
-                  <ArrowUpRight className="h-3.5 w-3.5" />
-                </Link>
-                <DocumentList documents={docs} projectId={projectId} />
-              </section>
+              <DashboardSection
+                key={projectId}
+                title={label}
+                description={`${docs.length} document${docs.length !== 1 ? "s" : ""}`}
+                icon={FolderKanban}
+                actionHref={`/dashboard/projects/${projectId}`}
+                actionLabel="Ouvrir le dossier"
+              >
+                <div className="p-5 pt-0">
+                  <DocumentList documents={docs} projectId={projectId} />
+                </div>
+              </DashboardSection>
             );
           })}
         </div>
       )}
-    </div>
+    </DashboardPageFrame>
   );
 }

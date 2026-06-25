@@ -6,7 +6,7 @@ import { Briefcase, Eye, FileText, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 
-const STORAGE_KEY = "patentiq_cpi_onboarding_dismissed";
+const STORAGE_KEY = "i2pa_cpi_onboarding_dismissed";
 
 const STEPS = [
   {

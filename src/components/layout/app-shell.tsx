@@ -28,7 +28,10 @@ async function AppShellSidebar({ forceRole }: { forceRole?: AppRole }) {
   const role = forceRole ?? ctx.primaryRole ?? "project_holder";
   const sections = getNavSectionsForRole(role);
   const displayName = ctx.profile?.full_name ?? ctx.user.email;
-  const avatarUrl = await getAvatarSignedUrl(ctx.profile?.avatar_url);
+  const [avatarUrl, unreadNotifications] = await Promise.all([
+    getAvatarSignedUrl(ctx.profile?.avatar_url),
+    getUnreadNotificationCount(ctx.user.id),
+  ]);
 
   return (
     <DashboardSidebar
@@ -37,6 +40,7 @@ async function AppShellSidebar({ forceRole }: { forceRole?: AppRole }) {
       userName={displayName}
       userInitials={displayInitials(ctx.profile?.full_name, ctx.user.email)}
       avatarUrl={avatarUrl}
+      unreadNotifications={unreadNotifications}
     />
   );
 }
@@ -85,7 +89,7 @@ export function AppShell({
   forceRole?: AppRole;
 }) {
   return (
-    <div className="app-shell flex h-[100dvh] max-h-[100dvh] w-full max-w-[100vw] overflow-hidden bg-app-shell">
+    <div className="app-shell flex h-[100dvh] max-h-[100dvh] w-full max-w-[100vw] overflow-hidden bg-muted/20">
       <Suspense fallback={<ShellSidebarSkeleton />}>
         <AppShellSidebar forceRole={forceRole} />
       </Suspense>
@@ -95,7 +99,7 @@ export function AppShell({
         </Suspense>
         <main className="dashboard-main min-h-0 flex-1 overflow-x-clip overflow-y-auto overscroll-y-contain">
           <div className="mx-auto w-full min-w-0 max-w-[1600px] p-4 pb-8 sm:p-6 sm:pb-10 lg:p-8 safe-bottom">
-            <div className="min-w-0 max-w-full space-y-6 overflow-x-clip">
+            <div className="dash-page min-w-0 max-w-full overflow-x-clip">
               {children}
             </div>
           </div>

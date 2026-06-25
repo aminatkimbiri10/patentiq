@@ -1,18 +1,18 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, FileText, FlaskConical, Mail } from "lucide-react";
+import { ArrowLeft, FileText, FlaskConical, Mail, MessageSquare } from "lucide-react";
 import { ProjectMessageThread } from "@/components/messages/project-message-thread";
 import type { ProjectMessage } from "@/lib/actions/messages";
 import { requireUser } from "@/lib/auth/require-user";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { ProjectStatusBadge } from "@/components/shared/status-badge";
+import { DashboardSection } from "@/components/dashboard/dashboard-section";
 import { CommentThread, type CommentWithAuthor } from "@/components/dashboard/comment-thread";
 import { ExpertRecommendationForm } from "@/components/expert/expert-recommendation-form";
 import { ExpertRecommendationCard } from "@/components/expert/expert-recommendation-card";
 import { Button } from "@/components/ui/button";
 import { DocumentList } from "@/components/documents/document-list";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Document, Project } from "@/types/database";
 
 export default async function ExpertProjectDetailPage({ params }: { params: { id: string } }) {
@@ -38,24 +38,24 @@ export default async function ExpertProjectDetailPage({ params }: { params: { id
 
   const [{ data: comments }, { data: documentsRaw }, { data: projectMessages }] =
     await Promise.all([
-    supabase
-      .from("project_comments")
-      .select("id, body, created_at, author_id, is_legal, metadata, profiles(full_name, email)")
-      .eq("project_id", params.id)
-      .order("created_at", { ascending: false }),
-    supabase
-      .from("documents")
-      .select("id, title, file_name, mime_type, created_at")
-      .eq("project_id", params.id)
-      .neq("status", "deleted")
-      .order("created_at", { ascending: false }),
-    supabase
-      .from("messages")
-      .select("id, body, created_at, sender_id, profiles(full_name, email)")
-      .eq("project_id", params.id)
-      .eq("message_type", "project_thread")
-      .order("created_at", { ascending: true }),
-  ]);
+      supabase
+        .from("project_comments")
+        .select("id, body, created_at, author_id, is_legal, metadata, profiles(full_name, email)")
+        .eq("project_id", params.id)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("documents")
+        .select("id, title, file_name, mime_type, created_at")
+        .eq("project_id", params.id)
+        .neq("status", "deleted")
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("messages")
+        .select("id, body, created_at, sender_id, profiles(full_name, email)")
+        .eq("project_id", params.id)
+        .eq("message_type", "project_thread")
+        .order("created_at", { ascending: true }),
+    ]);
 
   const mappedComments: CommentWithAuthor[] = (comments ?? []).map((c) => {
     const row = c as CommentWithAuthor & {
@@ -67,12 +67,13 @@ export default async function ExpertProjectDetailPage({ params }: { params: { id
   });
 
   const technicalComments = mappedComments.filter(
-    (c) => !c.is_legal && (c as { metadata?: { kind?: string } }).metadata?.kind !== "expert_recommendation"
+    (c) =>
+      !c.is_legal &&
+      (c as { metadata?: { kind?: string } }).metadata?.kind !== "expert_recommendation"
   );
 
   const recommendations = (comments ?? []).filter(
-    (c) =>
-      (c as { metadata?: { kind?: string } }).metadata?.kind === "expert_recommendation"
+    (c) => (c as { metadata?: { kind?: string } }).metadata?.kind === "expert_recommendation"
   );
 
   const documents = (documentsRaw ?? []) as Document[];
@@ -96,7 +97,7 @@ export default async function ExpertProjectDetailPage({ params }: { params: { id
   });
 
   return (
-    <div className="space-y-6">
+    <div className="dash-page w-full min-w-0 space-y-6">
       <Button variant="ghost" size="sm" className="-ml-2 text-muted-foreground" asChild>
         <Link href="/expert/assigned-projects">
           <ArrowLeft className="mr-1 h-4 w-4" />
@@ -104,98 +105,101 @@ export default async function ExpertProjectDetailPage({ params }: { params: { id
         </Link>
       </Button>
 
-      <PageHeader icon={FlaskConical} title={p.title} description={p.reference_code ?? "Analyse technique"}>
+      <PageHeader
+        icon={FlaskConical}
+        eyebrow="Mission expert"
+        title={p.title}
+        description={p.reference_code ?? "Analyse technique du dossier"}
+      >
         <ProjectStatusBadge status={p.status} />
       </PageHeader>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="card-elevated border-0 shadow-none">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Invention</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground whitespace-pre-wrap">
+        <DashboardSection title="Invention" icon={FlaskConical}>
+          <p className="whitespace-pre-wrap p-5 pt-0 text-sm leading-relaxed text-muted-foreground">
             {p.invention_summary || "—"}
-          </CardContent>
-        </Card>
-        <Card className="card-elevated border-0 shadow-none">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Besoin / contexte</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground whitespace-pre-wrap">
+          </p>
+        </DashboardSection>
+        <DashboardSection title="Besoin / contexte" icon={FileText}>
+          <p className="whitespace-pre-wrap p-5 pt-0 text-sm leading-relaxed text-muted-foreground">
             {p.need_description || "—"}
-          </CardContent>
-        </Card>
+          </p>
+        </DashboardSection>
       </div>
 
-      <section className="space-y-4">
-        <h2 className="flex items-center gap-2 text-lg font-semibold">
-          <FileText className="h-5 w-5 text-primary" />
-          Documents
-        </h2>
-        <DocumentList documents={documents} projectId={p.id} canDelete={false} />
-      </section>
+      <DashboardSection
+        title="Documents"
+        description={`${documents.length} fichier${documents.length !== 1 ? "s" : ""}`}
+        icon={FileText}
+      >
+        <div className="p-5 pt-0">
+          <DocumentList documents={documents} projectId={p.id} canDelete={false} />
+        </div>
+      </DashboardSection>
 
-      <section className="space-y-4">
-        <h2 className="flex items-center gap-2 text-lg font-semibold">
-          <Mail className="h-5 w-5 text-primary" />
-          Messages dossier
-        </h2>
-        <ProjectMessageThread
-          projectId={p.id}
-          messages={mappedMessages}
-          currentUserId={ctx.user.id}
-        />
-      </section>
+      <DashboardSection title="Messages dossier" icon={Mail}>
+        <div className="p-5 pt-0">
+          <ProjectMessageThread
+            projectId={p.id}
+            messages={mappedMessages}
+            currentUserId={ctx.user.id}
+          />
+        </div>
+      </DashboardSection>
 
       <ExpertRecommendationForm projectId={p.id} />
 
       {recommendations.length > 0 && (
-        <section className="space-y-3">
-          <h2 className="text-base font-semibold">Recommandations publiées</h2>
-          {recommendations.map((r) => {
-            const row = r as {
-              id: string;
-              body: string;
-              created_at: string;
-              metadata: Record<string, unknown>;
-              profiles: { full_name: string | null } | { full_name: string | null }[] | null;
-            };
-            const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
-            return (
-              <ExpertRecommendationCard
-                key={row.id}
-                projectId={p.id}
-                projectTitle={p.title}
-                referenceCode={p.reference_code}
-                body={row.body}
-                createdAt={row.created_at}
-                authorName={profile?.full_name ?? null}
-                metadata={row.metadata as {
-                  feasibility?: string;
-                  recommendation?: string;
-                  risks?: string | null;
-                }}
-              />
-            );
-          })}
-        </section>
+        <DashboardSection
+          title="Recommandations publiées"
+          description={`${recommendations.length} recommandation${recommendations.length !== 1 ? "s" : ""}`}
+          icon={MessageSquare}
+        >
+          <div className="space-y-3 p-5 pt-0">
+            {recommendations.map((r) => {
+              const row = r as {
+                id: string;
+                body: string;
+                created_at: string;
+                metadata: Record<string, unknown>;
+                profiles: { full_name: string | null } | { full_name: string | null }[] | null;
+              };
+              const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
+              return (
+                <ExpertRecommendationCard
+                  key={row.id}
+                  projectId={p.id}
+                  projectTitle={p.title}
+                  referenceCode={p.reference_code}
+                  body={row.body}
+                  createdAt={row.created_at}
+                  authorName={profile?.full_name ?? null}
+                  metadata={row.metadata as {
+                    feasibility?: string;
+                    recommendation?: string;
+                    risks?: string | null;
+                  }}
+                />
+              );
+            })}
+          </div>
+        </DashboardSection>
       )}
 
-      <section className="space-y-4">
-        <h2 className="flex items-center gap-2 text-lg font-semibold">
-          <FlaskConical className="h-5 w-5 text-primary" />
-          Notes techniques
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          Échanges informels — la recommandation structurée ci-dessus est transmise au CPI.
-        </p>
-        <CommentThread
-          projectId={p.id}
-          comments={technicalComments}
-          canPostLegal={false}
-          legalOnly={false}
-        />
-      </section>
+      <DashboardSection
+        title="Notes techniques"
+        description="Échanges informels — la recommandation structurée ci-dessus est transmise au CPI."
+        icon={FlaskConical}
+      >
+        <div className="p-5 pt-0">
+          <CommentThread
+            projectId={p.id}
+            comments={technicalComments}
+            canPostLegal={false}
+            legalOnly={false}
+          />
+        </div>
+      </DashboardSection>
     </div>
   );
 }

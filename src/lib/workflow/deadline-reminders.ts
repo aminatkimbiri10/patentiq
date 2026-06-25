@@ -19,7 +19,7 @@ function projectActionUrl(
     role === "cpi"
       ? `/cpi/cases/${deadline.projectId}`
       : `/dashboard/projects/${deadline.projectId}`;
-  return `${base}?tab=dossier&section=parcours-pi&pi=cycle`;
+  return `${base}?tab=parcours&section=cycle&pi=cycle`;
 }
 
 async function wasRecentlyNotified(

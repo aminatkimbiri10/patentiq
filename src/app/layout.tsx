@@ -25,8 +25,11 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
   },
   icons: {
-    icon: [{ url: "/icons/icon.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/icons/icon.svg", type: "image/svg+xml" }],
+    icon: [
+      { url: "/logos/i2pa.png", type: "image/png" },
+      { url: "/icons/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: [{ url: "/logos/i2pa.png", type: "image/png" }],
   },
 };
 

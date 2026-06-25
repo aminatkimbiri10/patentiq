@@ -31,7 +31,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
   return new NextResponse(loaded.html, {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
-      "Content-Disposition": `inline; filename="patentiq-${safeName || "brevet"}.html"`,
+      "Content-Disposition": `inline; filename="i2pa-${safeName || "brevet"}.html"`,
     },
   });
 }

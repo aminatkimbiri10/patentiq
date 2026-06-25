@@ -34,7 +34,7 @@ export function ProfileForm({
 
   return (
     <form action={formAction} className="space-y-6">
-      <Card className="card-elevated border-0 shadow-none">
+      <Card className="card-elevated bg-card">
         <CardHeader>
           <CardTitle className="text-base">Coordonnées</CardTitle>
           <CardDescription>Informations visibles par votre équipe</CardDescription>
@@ -61,7 +61,7 @@ export function ProfileForm({
         </CardContent>
       </Card>
 
-      <Card className="card-elevated border-0 shadow-none">
+      <Card className="card-elevated bg-card">
         <CardHeader>
           <CardTitle className="text-base">Entreprise</CardTitle>
         </CardHeader>

@@ -35,5 +35,5 @@ const ACTIONS = [
 ] as const;
 
 export function DashboardQuickActions() {
-  return <QuickActionGrid actions={ACTIONS} />;
+  return <QuickActionGrid title="Actions rapides" actions={ACTIONS} />;
 }

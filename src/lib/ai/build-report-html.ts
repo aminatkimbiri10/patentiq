@@ -105,7 +105,7 @@ export function buildReportHtml(input: ReportHtmlInput): string {
       : "<p>Aucun document enregistré pour cette analyse.</p>"
   }
   <p class="footer">
-    PatentIQ — document généré automatiquement. Ne constitue pas un avis juridique.
+    I2PA — document généré automatiquement. Ne constitue pas un avis juridique.
     Utilisez « Enregistrer en PDF » puis « Enregistrer au format PDF » dans la boîte d'impression.
   </p>
   <script>

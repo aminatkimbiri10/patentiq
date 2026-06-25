@@ -1,54 +1,74 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, BookOpen, FolderKanban, Eye, Sparkles, Users, FileText } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpen,
+  FolderKanban,
+  Eye,
+  Sparkles,
+  Users,
+  FileText,
+  Shield,
+  Settings,
+  FlaskConical,
+} from "lucide-react";
+import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { siteConfig } from "@/config/site";
 import type { AppRole } from "@/types/roles";
 
-const HOLDER_STEPS = [
+type GuideStep = {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  text: string;
+  href: string;
+  cta: string;
+};
+
+const HOLDER_STEPS: GuideStep[] = [
   {
     icon: FolderKanban,
     title: "1. Ouvrir un projet",
-    text: "Tout se passe dans Mes projets : documents, checklist, parcours PI et IA.",
+    text: "Mes projets regroupe vos dossiers — statut, complétude et prochaine étape en un coup d'œil.",
     href: "/dashboard/projects",
     cta: "Mes projets",
   },
   {
-    icon: Sparkles,
-    title: "2. Préparer le dossier",
-    text: "Onglet Dossier → documents + checklist + Parcours PI. Export ZIP pour le CPI.",
+    icon: FileText,
+    title: "2. Documents & parcours PI",
+    text: "Onglets Documents et Parcours PI : checklist, cycle marque/brevet, rédaction et export ZIP.",
     href: "/dashboard/projects",
-    cta: "Commencer",
+    cta: "Ouvrir un dossier",
   },
   {
-    icon: FileText,
-    title: "3. Avant directompic.ma",
-    text: "Checklists marque/brevet et lien portail OMPIC officiel.",
-    href: "/dashboard/preparer-depot-ompic",
-    cta: "Préparer dépôt",
+    icon: Sparkles,
+    title: "3. Analyses IA",
+    text: "Nouveauté, similarité ou résumé — depuis l'onglet Analyses IA du dossier.",
+    href: "/dashboard/projects",
+    cta: "Lancer une analyse",
   },
   {
     icon: Eye,
-    title: "4. Surveiller (après dépôt)",
-    text: "Page Surveillance : alertes marques/brevets similaires (OMPIC live ou hybrid).",
+    title: "4. Surveiller après dépôt",
+    text: "Alertes OMPIC et veille continue une fois votre marque ou brevet enregistré.",
     href: "/dashboard/surveillance",
     cta: "Surveillance",
   },
 ];
 
-const CPI_STEPS = [
+const CPI_STEPS: GuideStep[] = [
   {
     icon: FolderKanban,
     title: "1. Dossiers clients",
-    text: "Liste des dossiers assignés — revue, statuts, checklist porteur.",
+    text: "Liste des dossiers assignés — revue, statuts et complétude porteur.",
     href: "/cpi/cases",
     cta: "Dossiers",
   },
   {
     icon: Eye,
     title: "2. Surveillance OMPIC",
-    text: "Watchlist + scan similarités + veille technologique hebdo.",
+    text: "Watchlist, scan similarités et veille technologique.",
     href: "/cpi/surveillance",
     cta: "Surveillance",
   },
@@ -68,90 +88,176 @@ const CPI_STEPS = [
   },
 ];
 
+const EXPERT_STEPS: GuideStep[] = [
+  {
+    icon: FolderKanban,
+    title: "1. Projets assignés",
+    text: "Liste des missions où vous êtes expert technique — ouvrez le dossier pour analyser.",
+    href: "/expert/assigned-projects",
+    cta: "Missions",
+  },
+  {
+    icon: FlaskConical,
+    title: "2. Analyser le dossier",
+    text: "Documents, invention, notes techniques et recommandation structurée au CPI.",
+    href: "/expert/assigned-projects",
+    cta: "Ouvrir une mission",
+  },
+  {
+    icon: Sparkles,
+    title: "3. Recommandations",
+    text: "Publiez votre avis technique — faisabilité, risques et recommandations.",
+    href: "/expert/recommendations",
+    cta: "Mes recommandations",
+  },
+  {
+    icon: Eye,
+    title: "4. Analyses en cours",
+    text: "Suivi des dossiers en attente de votre retour.",
+    href: "/expert/analysis",
+    cta: "Analyses",
+  },
+];
+
+const ADMIN_STEPS: GuideStep[] = [
+  {
+    icon: Users,
+    title: "1. Utilisateurs & rôles",
+    text: "Gérez les comptes porteurs, CPI, experts et assignations de rôle.",
+    href: "/admin/users",
+    cta: "Utilisateurs",
+  },
+  {
+    icon: FolderKanban,
+    title: "2. Tous les projets",
+    text: "Vue globale des dossiers — statuts, propriétaires et activité.",
+    href: "/admin/projects",
+    cta: "Projets",
+  },
+  {
+    icon: Settings,
+    title: "3. Paramètres workflow",
+    text: "Assignation CPI automatique et règles de soumission.",
+    href: "/admin/settings",
+    cta: "Paramètres",
+  },
+  {
+    icon: Shield,
+    title: "4. Audit & traçabilité",
+    text: "Journal des actions sensibles sur la plateforme.",
+    href: "/admin/audit-logs",
+    cta: "Journal audit",
+  },
+];
+
+function getGuideConfig(role?: AppRole | null) {
+  switch (role) {
+    case "cpi_advisor":
+      return {
+        title: "Utiliser l'espace CPI",
+        description:
+          "Trois zones : Accueil, Dossiers clients et Surveillance. Le détail se fait dans chaque dossier.",
+        workspace: "un dossier client",
+        steps: CPI_STEPS,
+        showHolderTips: false,
+      };
+    case "expert":
+      return {
+        title: "Utiliser l'espace Expert",
+        description:
+          "Missions assignées, analyse technique et recommandations structurées au CPI.",
+        workspace: "une mission assignée",
+        steps: EXPERT_STEPS,
+        showHolderTips: false,
+      };
+    case "admin":
+      return {
+        title: "Administration I2PA",
+        description: "Gestion des utilisateurs, projets, workflow et audit de la plateforme.",
+        workspace: "le panneau admin",
+        steps: ADMIN_STEPS,
+        showHolderTips: false,
+      };
+    default:
+      return {
+        title: `Utiliser ${siteConfig.productLabel}`,
+        description:
+          "Un projet = un dossier. Cinq onglets : Vue d'ensemble, Documents, Parcours PI, Échanges, Analyses IA.",
+        workspace: "Mes projets → votre dossier",
+        steps: HOLDER_STEPS,
+        showHolderTips: true,
+      };
+  }
+}
+
 export function PlatformGuide({ role }: { role?: AppRole | null }) {
-  const isCpi = role === "cpi_advisor";
-  const steps = isCpi ? CPI_STEPS : HOLDER_STEPS;
+  const config = getGuideConfig(role);
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
-      <div className="space-y-2">
-        <div className="flex items-center gap-2 text-primary">
-          <BookOpen className="h-5 w-5" />
-          <span className="text-sm font-semibold uppercase tracking-wider">Guide</span>
-        </div>
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-          {isCpi ? "Comment utiliser PatentIQ (CPI)" : "Comment utiliser PatentIQ"}
-        </h1>
-        <p className="text-muted-foreground leading-relaxed">
-          {isCpi
-            ? "Trois zones suffisent : Accueil, Dossiers et Surveillance. Le reste est dans chaque dossier."
-            : "Ne vous perdez pas dans les menus : un projet = un dossier. Le menu latéral est volontairement court."}
+    <div className="dash-page mx-auto w-full min-w-0 max-w-3xl space-y-6">
+      <PageHeader
+        icon={BookOpen}
+        eyebrow="Guide"
+        title={config.title}
+        description={config.description}
+      />
+
+      <div className="rounded-xl border border-primary/20 bg-primary/[0.04] p-5 text-sm">
+        <p className="font-semibold text-foreground">Règle simple</p>
+        <p className="mt-1.5 leading-relaxed text-muted-foreground">
+          <strong className="text-foreground">90 % du travail</strong> se fait dans{" "}
+          <strong className="text-foreground">{config.workspace}</strong>. Le menu latéral reste
+          volontairement court pour éviter la dispersion.
         </p>
       </div>
 
-      <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm">
-        <p className="font-medium">Règle simple</p>
-        <p className="mt-1 text-muted-foreground">
-          <strong>90 % du travail</strong> se fait dans{" "}
-          <strong>{isCpi ? "un dossier client" : "Mes projets → votre dossier"}</strong>, via 3
-          onglets : <strong>Dossier</strong>, <strong>Échanges</strong>, <strong>IA</strong>.
-        </p>
-      </div>
-
-      <ol className="space-y-4">
-        {steps.map((step) => (
-          <li key={step.title}>
-            <Card className="card-elevated border-0">
-              <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex gap-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-                    <step.icon className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-semibold">{step.title}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">{step.text}</p>
-                  </div>
-                </div>
-                <Button variant="outline" size="sm" className="shrink-0 gap-1" asChild>
-                  <Link href={step.href}>
-                    {step.cta}
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
+      <ol className="space-y-3">
+        {config.steps.map((step) => (
+          <li
+            key={step.title}
+            className="card-elevated flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <div className="flex gap-4">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <step.icon className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">{step.title}</p>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{step.text}</p>
+              </div>
+            </div>
+            <Button variant="outline" size="sm" className="shrink-0 gap-1" asChild>
+              <Link href={step.href}>
+                {step.cta}
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </Button>
           </li>
         ))}
       </ol>
 
-      {!isCpi && (
-        <Card className="border-dashed">
-          <CardContent className="p-5 text-sm text-muted-foreground space-y-2">
-            <p className="font-medium text-foreground">Où trouver quoi ?</p>
-            <ul className="list-inside list-disc space-y-1">
-              <li>
-                <strong>Parcours PI</strong> (dans le dossier) : cycle marque/brevet, rédaction,
-                revendications
-              </li>
-              <li>
-                <strong>Messages</strong> : fil avec votre CPI (pas besoin d&apos;une page par
-                projet)
-              </li>
-              <li>
-                <strong>Préparer dépôt OMPIC</strong> — checklists + lien directompic.ma
-              </li>
-              <li>
-                <strong>Export ZIP</strong> — livrable CPI (Parcours PI brevet/marque)
-              </li>
-              <li>
-                <strong>Notifications</strong> : cloche en haut à droite
-              </li>
-              <li>
-                <strong>Sécurité 2FA</strong> : Profil → Paramètres sécurité
-              </li>
-            </ul>
-          </CardContent>
-        </Card>
+      {config.showHolderTips && (
+        <div className="pro-surface-muted text-sm">
+          <p className="font-semibold text-foreground">Où trouver quoi ?</p>
+          <ul className="mt-3 space-y-2 text-muted-foreground">
+            <li>
+              <strong className="text-foreground">Parcours PI</strong> — cycle marque/brevet,
+              rédaction, revendications
+            </li>
+            <li>
+              <strong className="text-foreground">Échanges</strong> — messages et tâches avec votre
+              conseil CPI
+            </li>
+            <li>
+              <strong className="text-foreground">Préparer dépôt OMPIC</strong> — checklists + lien
+              directompic.ma
+            </li>
+            <li>
+              <strong className="text-foreground">Sécurité 2FA</strong> — Paramètres sécurité
+              (Google Authenticator)
+            </li>
+          </ul>
+        </div>
       )}
     </div>
   );

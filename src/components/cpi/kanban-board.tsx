@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import type { Project, ProjectStatus } from "@/types/database";
 import { cn } from "@/lib/utils/cn";
 
-const DRAG_TYPE = "application/x-patentiq-project";
+const DRAG_TYPE = "application/x-i2pa-project";
 
 export function CpiKanbanBoard({ columns }: { columns: KanbanColumn[] }) {
   const router = useRouter();

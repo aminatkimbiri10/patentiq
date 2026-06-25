@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { FolderPlus, Upload, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils/cn";
 
-const STORAGE_KEY = "patentiq_holder_onboarding_dismissed";
+const STORAGE_KEY = "i2pa_holder_onboarding_dismissed";
 
 const STEPS = [
   {
@@ -59,7 +60,7 @@ export function HolderOnboarding({
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             Premiers pas
           </p>
-          <h2 className="text-sm font-semibold">Bienvenue sur PatentIQ</h2>
+          <h2 className="text-sm font-semibold">Bienvenue sur {siteConfig.productLabel}</h2>
         </div>
         <Button
           type="button"

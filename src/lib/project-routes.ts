@@ -99,10 +99,10 @@ export function projectUrlForUser(
     return `${projectCasePath(projectId, role)}${projectTabQuery("echanges", "messages")}`;
   }
   if (tab === "documents") {
-    return `${projectCasePath(projectId, role)}${projectTabQuery("dossier", "documents")}`;
+    return `${projectCasePath(projectId, role)}${projectTabQuery("documents")}`;
   }
   if (tab === "checklist") {
-    return `${projectCasePath(projectId, role)}${projectTabQuery("dossier", "checklist")}`;
+    return `${projectCasePath(projectId, role)}${projectTabQuery("overview")}`;
   }
   return projectCasePath(projectId, role);
 }

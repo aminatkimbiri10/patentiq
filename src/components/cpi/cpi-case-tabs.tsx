@@ -206,8 +206,8 @@ export function CpiCaseTabs({
           onValueChange={(v) => setActiveTab(v as CpiCaseTab)}
           className="w-full min-w-0"
         >
-          <div className="border-b border-border/60 px-2 sm:px-4">
-            <TabsList className={projectMainTabsListClass}>
+          <div className="overflow-x-auto overscroll-x-contain border-b border-border/60 px-2 sm:px-4">
+            <TabsList className={cn(projectMainTabsListClass, "min-w-max")}>
               <TabsTrigger value="dossier" className={projectMainTabTriggerClass}>
                 <FolderOpen className="h-4 w-4 shrink-0 opacity-70" />
                 Dossier

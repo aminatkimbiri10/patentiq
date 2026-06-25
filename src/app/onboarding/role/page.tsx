@@ -18,8 +18,8 @@ export default async function OnboardingRolePage() {
   await requireUser({ allowIncompleteOnboarding: true });
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4 sm:p-8">
-      <div className="w-full max-w-lg animate-fade-in">
+    <div className="flex min-h-screen min-h-[100dvh] w-full max-w-[100vw] items-center justify-center overflow-x-hidden bg-mesh p-4 safe-top safe-bottom sm:p-8">
+      <div className="w-full min-w-0 max-w-lg animate-fade-in">
         <AuthCard
           title="Votre profil"
           description="Choisissez votre rôle principal — vous pourrez collaborer sur tous les espaces."

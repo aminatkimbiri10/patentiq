@@ -45,11 +45,16 @@ export default async function ExpertRecommendationsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="dash-page w-full min-w-0 space-y-6">
       <PageHeader
         icon={ClipboardList}
+        eyebrow="Expert"
         title="Recommandations"
-        description="Historique de vos avis structurés transmis aux conseillers PI."
+        description={
+          rows.length > 0
+            ? `${rows.length} avis structuré${rows.length !== 1 ? "s" : ""} transmis aux conseillers PI.`
+            : "Historique de vos avis structurés transmis aux conseillers PI."
+        }
       />
       {rows.length === 0 ? (
         <EmptyState

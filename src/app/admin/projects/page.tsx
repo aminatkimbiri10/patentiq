@@ -18,7 +18,7 @@ export default async function AdminProjectsPage() {
   const items = (projects ?? []) as Project[];
 
   return (
-    <div className="space-y-6">
+    <div className="dash-page w-full min-w-0 space-y-6">
       <PageHeader
         icon={FolderKanban}
         title="Tous les projets"

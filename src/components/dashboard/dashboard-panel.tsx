@@ -21,11 +21,15 @@ export function DashboardPanel({
   return (
     <div className={cn("enterprise-panel overflow-hidden", className)}>
       {hasHeader && (
-        <div className="enterprise-panel-header">
-          <div className="flex min-w-0 items-start gap-2">
-            {Icon && <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />}
+        <div className="enterprise-panel-header bg-muted/25">
+          <div className="flex min-w-0 items-start gap-2.5">
+            {Icon && (
+              <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Icon className="h-4 w-4" />
+              </span>
+            )}
             <div>
-              {title && <h3 className="text-sm font-semibold">{title}</h3>}
+              {title && <h3 className="text-sm font-semibold text-foreground">{title}</h3>}
               {description && (
                 <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
               )}

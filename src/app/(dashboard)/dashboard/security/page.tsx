@@ -1,8 +1,10 @@
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, Smartphone, Lock, Mail } from "lucide-react";
 import { requireUser } from "@/lib/auth/require-user";
 import { PageHeader } from "@/components/shared/page-header";
+import { DashboardPageFrame } from "@/components/dashboard/dashboard-page-frame";
+import { FeatureTiles } from "@/components/shared/feature-tiles";
+import { DashboardPanel } from "@/components/dashboard/dashboard-panel";
 import { MfaSettingsPanel } from "@/components/auth/mfa-settings-panel";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const metadata = { title: "Sécurité du compte" };
 
@@ -10,24 +12,46 @@ export default async function SecurityPage() {
   await requireUser();
 
   return (
-    <div className="mx-auto max-w-lg space-y-6">
+    <DashboardPageFrame className="mx-auto max-w-2xl">
       <PageHeader
+        variant="elevated"
+        bordered={false}
         icon={ShieldCheck}
+        eyebrow="Compte"
         title="Sécurité"
-        description="Confirmation email à l'inscription et authentification à deux facteurs (2FA)."
+        description="Protégez vos dossiers PI — authentification renforcée exigée par I2PA."
       />
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Double authentification (2FA)</CardTitle>
-        </CardHeader>
-        <CardContent>
+
+      <FeatureTiles
+        items={[
+          { icon: Mail, title: "Email confirmé", description: "Vérification à l'inscription" },
+          {
+            icon: Smartphone,
+            title: "2FA Authenticator",
+            description: "Google Authenticator / Authy",
+          },
+          { icon: Lock, title: "Dossiers isolés", description: "Accès par rôle (RLS)" },
+        ]}
+      />
+
+      <DashboardPanel
+        title="Authentification à deux facteurs (2FA)"
+        description="Recommandé pour les CPI et toute personne manipulant des revendications ou descriptions d'invention."
+        icon={Smartphone}
+      >
+        <div className="space-y-4 p-5 pt-0">
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            Scannez le QR code avec votre application d&apos;authentification — un code à 6 chiffres
+            sera demandé à chaque connexion.
+          </p>
           <MfaSettingsPanel />
-        </CardContent>
-      </Card>
-      <p className="text-xs text-muted-foreground">
-        L&apos;email doit être confirmé avant la première connexion. Activez la 2FA surtout si vous
-        gérez des revendications ou des inventions confidentielles.
+        </div>
+      </DashboardPanel>
+
+      <p className="text-xs leading-relaxed text-muted-foreground">
+        En cas de perte de l&apos;authenticator, contactez votre administrateur I2PA. Ne partagez
+        jamais vos codes de sécurité.
       </p>
-    </div>
+    </DashboardPageFrame>
   );
 }

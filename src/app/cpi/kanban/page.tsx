@@ -17,7 +17,7 @@ export default async function CpiKanbanPage() {
   const total = projects.filter((p) => p.status !== "draft").length;
 
   return (
-    <div className="space-y-6">
+    <div className="dash-page w-full min-w-0 space-y-6">
       <PageHeader
         icon={Columns3}
         title="Kanban dossiers"

@@ -88,7 +88,7 @@ export function buildPatentDossierHtml(input: PatentDossierExportInput): string 
 </head>
 <body>
   <div class="confidential">
-    <strong>CONFIDENTIEL</strong> — Brouillon PatentIQ / I2PA. À valider par un CPI avant dépôt OMPIC (directompic.ma).
+    <strong>CONFIDENTIEL</strong> — Brouillon I2PA. À valider par un CPI avant dépôt OMPIC (directompic.ma).
     Ne constitue pas un avis juridique.
   </div>
   <header>
@@ -110,7 +110,7 @@ export function buildPatentDossierHtml(input: PatentDossierExportInput): string 
       : `<p>Aucun contenu de rédaction ou revendications enregistré.</p>`
   }
   <div class="footer">
-    PatentIQ — préparation dossier brevet Maroc (OMPIC) · Structure indicative : titre, description, revendications, abrégé.
+    I2PA — préparation dossier brevet Maroc (OMPIC) · Structure indicative : titre, description, revendications, abrégé.
   </div>
 </body>
 </html>`;

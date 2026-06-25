@@ -1,13 +1,21 @@
 import type { LucideIcon } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
 
-/** Bandeau KPI horizontal — style console entreprise */
+/** Bandeau KPI — 4 colonnes par défaut, extensible à 6 */
 export function KpiCards({
   items,
+  columns = 4,
 }: {
   items: { title: string; value: string | number; icon?: LucideIcon; hint?: string }[];
+  columns?: 4 | 6;
 }) {
   return (
-    <div className="enterprise-kpi">
+    <div
+      className={cn(
+        "enterprise-kpi",
+        columns === 6 ? "lg:grid-cols-3 xl:grid-cols-6" : "sm:grid-cols-2 lg:grid-cols-4"
+      )}
+    >
       {items.map((item) => {
         const Icon = item.icon;
         return (

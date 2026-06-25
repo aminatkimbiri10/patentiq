@@ -25,7 +25,7 @@ export function PageLoadingSkeleton() {
 
 export function ShellSidebarSkeleton() {
   return (
-    <aside className="enterprise-sidebar hidden h-full max-h-[100dvh] w-[272px] shrink-0 overflow-hidden lg:flex lg:flex-col">
+    <aside className="enterprise-sidebar hidden h-full max-h-[100dvh] w-[260px] shrink-0 overflow-hidden lg:flex lg:flex-col">
       <div className="sidebar-header">
         <Skeleton className="h-8 w-32" />
       </div>

@@ -34,7 +34,7 @@ function GitHubIcon({ className }: { className?: string }) {
 
 export function SocialLoginButtons() {
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
+    <div className="grid min-w-0 gap-3 sm:grid-cols-2">
       <form action={signInWithOAuth}>
         <input type="hidden" name="provider" value="google" />
         <Button

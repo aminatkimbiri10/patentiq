@@ -38,11 +38,6 @@ export function SignOutButton({
           {!collapsed && (
             <span className="min-w-0 flex-1 truncate text-left">{label}</span>
           )}
-          {collapsed && (
-            <span className="sidebar-tooltip" role="tooltip">
-              {label}
-            </span>
-          )}
         </button>
       </form>
     );

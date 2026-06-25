@@ -259,6 +259,34 @@ export async function runWatchlistScan(watchlistId: string): Promise<WatchlistAc
   };
 }
 
+export async function runMyWatchlistScans(): Promise<WatchlistActionState> {
+  await requireUser();
+  const supabase = await createClient();
+  const items = (await listWatchlistForUser()).filter((i) => i.surveillance_active);
+
+  if (!items.length) {
+    return { error: "Aucun actif actif à scanner — ajoutez un actif au portefeuille." };
+  }
+
+  let totalAlerts = 0;
+  for (const item of items) {
+    const result = await scanWatchlistItem(supabase, item.id);
+    if (result.error) return { error: result.error };
+    totalAlerts += result.newAlerts;
+  }
+
+  revalidatePath("/cpi/surveillance");
+  revalidatePath("/dashboard/surveillance");
+
+  return {
+    success: true,
+    message:
+      totalAlerts > 0
+        ? `${items.length} actif(s) scanné(s) — ${totalAlerts} nouvelle(s) alerte(s).`
+        : `${items.length} actif(s) scanné(s) — aucune nouvelle similarité.`,
+  };
+}
+
 export async function runAllActiveScans(): Promise<{ processed: number; alerts: number }> {
   const supabase = createAdminClient();
   const { processed, newAlerts } = await scanAllActiveWatchlist(supabase);

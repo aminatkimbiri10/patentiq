@@ -28,7 +28,7 @@ export function projectPiParcoursUrl(
       pi: piSection,
     });
   }
-  return `/dashboard/projects/${projectId}?tab=dossier&section=parcours-pi&pi=${piSection}`;
+  return `/dashboard/projects/${projectId}?tab=parcours&section=${piSection}&pi=${piSection}`;
 }
 
 export function getDraftingDocumentationStatus(

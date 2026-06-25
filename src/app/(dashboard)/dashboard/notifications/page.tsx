@@ -2,6 +2,7 @@ import { requireUser } from "@/lib/auth/require-user";
 import { createClient } from "@/lib/supabase/server";
 import { MarkAllReadOnVisit } from "@/components/notifications/mark-all-read-on-visit";
 import { PageHeader } from "@/components/shared/page-header";
+import { DashboardPageFrame } from "@/components/dashboard/dashboard-page-frame";
 import { EmptyState } from "@/components/shared/empty-state";
 import { NotificationList } from "@/components/notifications/notification-list";
 import { Pagination } from "@/components/shared/pagination";
@@ -40,10 +41,13 @@ export default async function NotificationsPage({
   const totalPages = getTotalPages(count ?? 0, LIST_PAGE_SIZE);
 
   return (
-    <div className="space-y-6">
+    <DashboardPageFrame>
       <MarkAllReadOnVisit hadUnread={hadUnread} />
       <PageHeader
+        variant="elevated"
+        bordered={false}
         icon={Bell}
+        eyebrow="Alertes"
         title="Notifications"
         description={
           hadUnread
@@ -58,6 +62,7 @@ export default async function NotificationsPage({
           icon={Bell}
           title="Aucune notification"
           description="Vous serez informé des nouveaux messages, tâches et analyses IA ici."
+          className="enterprise-panel"
         />
       ) : (
         <>
@@ -65,6 +70,6 @@ export default async function NotificationsPage({
           <Pagination basePath="/dashboard/notifications" page={page} totalPages={totalPages} />
         </>
       )}
-    </div>
+    </DashboardPageFrame>
   );
 }

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 
 function storageKey(projectId: string) {
-  return `patentiq_project_hint_${projectId}`;
+  return `i2pa_project_hint_${projectId}`;
 }
 
 export function ProjectOnboardingHint({
@@ -37,19 +37,19 @@ export function ProjectOnboardingHint({
       icon: Upload,
       label: "Déposer vos documents",
       hint: "Descriptif, dessins, notes — onglet Dossier.",
-      href: `?tab=dossier&section=documents`,
+      href: `?tab=documents`,
     },
     {
       icon: ClipboardCheck,
       label: "Compléter la checklist",
       hint: "Suivez les étapes PI adaptées à votre catégorie.",
-      href: `?tab=dossier&section=checklist`,
+      href: `?tab=overview`,
     },
     {
       icon: Sparkles,
       label: "Lancer une analyse IA",
-      hint: "Antériorité ou nouveauté — onglet IA.",
-      href: `?tab=ia&section=nouvelle`,
+      hint: "Antériorité ou nouveauté — onglet Analyses IA.",
+      href: `?tab=search`,
     },
   ];
 

@@ -31,7 +31,7 @@ export function DashboardTopbar({
   unreadNotifications?: number;
 }) {
   return (
-    <header className="z-40 flex h-14 w-full min-w-0 max-w-full shrink-0 items-center gap-2 overflow-hidden border-b border-border bg-card px-3 safe-top sm:px-5 lg:px-6">
+    <header className="sticky top-0 z-40 flex h-14 w-full min-w-0 max-w-full shrink-0 items-center gap-2 overflow-hidden border-b border-border/40 bg-background/95 px-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/85 safe-top sm:px-5 lg:px-6">
       <MobileNav items={navItems} sections={navSections} role={role} />
 
       <Button

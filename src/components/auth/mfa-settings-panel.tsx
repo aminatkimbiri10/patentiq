@@ -43,7 +43,7 @@ export function MfaSettingsPanel() {
     setMessage(null);
     const { data, error: enrollErr } = await supabase.auth.mfa.enroll({
       factorType: "totp",
-      friendlyName: "PatentIQ authenticator",
+      friendlyName: "I2PA Authenticator",
     });
     setLoading(false);
     if (enrollErr) {

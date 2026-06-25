@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Brain, FolderOpen, Users, ChevronDown } from "lucide-react";
+import { Brain, FileText, FolderOpen, Route, Users } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UploadZone } from "@/components/documents/upload-zone";
 import { DocumentList } from "@/components/documents/document-list";
@@ -12,7 +12,6 @@ import { ProjectTimeline, type ProjectUpdate } from "@/components/dashboard/proj
 import { AiAssistantChatFloat } from "@/components/dashboard/ai-assistant-chat-float";
 import { AiSearchPanel } from "@/components/dashboard/ai-search-panel";
 import { ProjectChecklistPanel } from "@/components/dashboard/project-checklist-panel";
-import { ProjectCompletenessPanel } from "@/components/dashboard/project-completeness-panel";
 import { ProjectMessageThread } from "@/components/messages/project-message-thread";
 import { ProjectPiParcoursPanel } from "@/components/surveillance/project-pi-parcours-panel";
 import { ProjectSectionNav } from "@/components/project/project-section-nav";
@@ -42,9 +41,8 @@ import type { PatentDraft } from "@/lib/actions/patent-draft";
 import type { PatentDraftVersionRow } from "@/lib/actions/patent-draft-history";
 import {
   resolveProjectTab,
-  type DossierSection,
-  type EchangesSection,
   type ProjectMainTab,
+  type EchangesSection,
   type SearchSection,
 } from "@/lib/project-tabs";
 import type { ProjectMessage } from "@/lib/actions/messages";
@@ -52,7 +50,6 @@ import { PROJECT_AI_SEARCH_TYPES } from "@/lib/ai/search-types";
 import type { Document, AiSearch, AiResult, AiSearchType } from "@/types/database";
 import type { ChecklistTemplate } from "@/lib/checklists/templates";
 import type { ProjectChecklistState } from "@/lib/checklists/parse";
-import { checklistProgress } from "@/lib/checklists/parse";
 import { cn } from "@/lib/utils/cn";
 
 type TabStats = {
@@ -141,14 +138,12 @@ export function ProjectDetailTabs({
   };
 
   const [activeTab, setActiveTab] = useState<ProjectMainTab>(resolved.tab);
-  const [dossierSection, setDossierSection] = useState<DossierSection>(resolved.dossierSection);
   const [echangesSection, setEchangesSection] = useState<EchangesSection>(resolved.echangesSection);
   const [searchSection, setSearchSection] = useState<SearchSection>(resolved.searchSection);
 
   useEffect(() => {
     const r = resolveProjectTab(searchParams.get("tab"), searchParams.get("section"));
     setActiveTab(r.tab);
-    setDossierSection(r.dossierSection);
     setEchangesSection(r.echangesSection);
     setSearchSection(r.searchSection);
   }, [searchParams]);
@@ -170,30 +165,10 @@ export function ProjectDetailTabs({
     isBrevetCategory(categorySlug) ||
     isMarqueCategory(categorySlug) ||
     isDesignCategory(categorySlug);
+
   const marqueState = marqueLifecycle ?? defaultMarqueLifecycle();
   const brevetState = brevetLifecycle ?? defaultBrevetLifecycle();
   const designState = designLifecycle ?? defaultDesignLifecycle();
-
-  const checklistStats = checklistProgress(
-    checklistTemplate.items.map((i) => i.id),
-    checklistState
-  );
-
-  const dossierSections: Array<{
-    id: DossierSection;
-    label: string;
-    count?: number | string;
-  }> = [
-    { id: "documents", label: "Documents", count: s.documents },
-    {
-      id: "checklist",
-      label: "Checklist",
-      count: s.checklistPercent != null ? `${s.checklistPercent} %` : undefined,
-    },
-  ];
-  if (showPiParcours) {
-    dossierSections.push({ id: "parcours-pi", label: "Parcours PI" });
-  }
 
   return (
     <>
@@ -203,34 +178,41 @@ export function ProjectDetailTabs({
           onValueChange={(v) => setActiveTab(v as ProjectMainTab)}
           className="w-full min-w-0"
         >
-          <div className="border-b border-border/60 px-2 sm:px-4">
-            <TabsList className={projectMainTabsListClass}>
-              <TabsTrigger value="dossier" className={projectMainTabTriggerClass}>
+          <div className="overflow-x-auto border-b border-border/60 px-2 sm:px-4">
+            <TabsList className={cn(projectMainTabsListClass, "min-w-max")}>
+              <TabsTrigger value="overview" className={projectMainTabTriggerClass}>
                 <FolderOpen className="h-4 w-4 shrink-0 opacity-70" />
-                Dossier
+                <span className="hidden sm:inline">Vue d&apos;ensemble</span>
+                <span className="sm:hidden">Aperçu</span>
               </TabsTrigger>
+              <TabsTrigger value="documents" className={projectMainTabTriggerClass}>
+                <FileText className="h-4 w-4 shrink-0 opacity-70" />
+                Documents
+                {s.documents > 0 && (
+                  <span className="ml-1 text-[10px] tabular-nums text-muted-foreground">
+                    {s.documents}
+                  </span>
+                )}
+              </TabsTrigger>
+              {showPiParcours && (
+                <TabsTrigger value="parcours" className={projectMainTabTriggerClass}>
+                  <Route className="h-4 w-4 shrink-0 opacity-70" />
+                  Parcours PI
+                </TabsTrigger>
+              )}
               <TabsTrigger value="echanges" className={cn(projectMainTabTriggerClass, "relative")}>
                 <Users className="h-4 w-4 shrink-0 opacity-70" />
                 Échanges
                 {(unreadMessages > 0 || openTasks > 0) && (
-                  <span
-                    className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-primary sm:right-3"
-                    title={
-                      unreadMessages > 0
-                        ? `${unreadMessages} message(s) non lu(s)`
-                        : `${openTasks} tâche(s) ouverte(s)`
-                    }
-                  />
+                  <span className="absolute right-1 top-2 h-1.5 w-1.5 rounded-full bg-primary sm:right-2" />
                 )}
               </TabsTrigger>
               <TabsTrigger value="search" className={projectMainTabTriggerClass}>
                 <Brain className="h-4 w-4 shrink-0 opacity-70" />
-                Analyses IA
+                <span className="hidden sm:inline">Analyses IA</span>
+                <span className="sm:hidden">IA</span>
                 {pendingAi > 0 && (
-                  <span
-                    className="ml-1 rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-primary"
-                    title="Analyse en cours"
-                  >
+                  <span className="ml-1 rounded bg-primary/10 px-1 py-0.5 text-[10px] font-semibold text-primary">
                     {pendingAi}
                   </span>
                 )}
@@ -238,46 +220,43 @@ export function ProjectDetailTabs({
             </TabsList>
           </div>
 
-          <div className="p-4 sm:p-6">
-            <TabsContent value="dossier" className="mt-0">
-              <ProjectCompletenessPanel
-                inventionSummary={inventionSummary}
-                needDescription={needDescription}
-                categorySlug={categorySlug}
-                documentCount={s.documents}
-                checklistDone={checklistStats.done}
-                checklistTotal={checklistStats.total}
-              />
+          <div className="p-3 sm:p-4 lg:p-6">
+            <TabsContent value="overview" className="mt-0 space-y-6">
               <ProjectSummaryPanel
                 inventionSummary={inventionSummary}
                 needDescription={needDescription}
                 categorySlug={categorySlug}
               />
-              <ProjectSectionNav
-                active={dossierSection}
-                onChange={setDossierSection}
-                sections={dossierSections}
+              <ProjectChecklistPanel
+                projectId={projectId}
+                template={checklistTemplate}
+                state={checklistState}
+                readOnly={checklistReadOnly}
+                aiSearches={aiSearches}
+                patentDraft={patentDraft}
+                patentClaims={patentClaims}
+                manualChecked={checklistManualChecked}
+                autoChecked={checklistAutoChecked}
               />
-              {dossierSection === "documents" && (
-                <div className="space-y-6">
-                  <UploadZone projectId={projectId} />
-                  <DocumentList documents={activeDocs} projectId={projectId} />
-                </div>
+              {updates.length > 0 && (
+                <details className="group rounded-lg border border-border/60 bg-muted/15">
+                  <summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium [&::-webkit-details-marker]:hidden">
+                    Journal d&apos;activité ({updates.length})
+                  </summary>
+                  <div className="border-t border-border/60 px-4 py-4">
+                    <ProjectTimeline updates={updates} limit={5} />
+                  </div>
+                </details>
               )}
-              {dossierSection === "checklist" && (
-                <ProjectChecklistPanel
-                  projectId={projectId}
-                  template={checklistTemplate}
-                  state={checklistState}
-                  readOnly={checklistReadOnly}
-                  aiSearches={aiSearches}
-                  patentDraft={patentDraft}
-                  patentClaims={patentClaims}
-                  manualChecked={checklistManualChecked}
-                  autoChecked={checklistAutoChecked}
-                />
-              )}
-              {dossierSection === "parcours-pi" && showPiParcours && (
+            </TabsContent>
+
+            <TabsContent value="documents" className="mt-0 space-y-6">
+              <UploadZone projectId={projectId} />
+              <DocumentList documents={activeDocs} projectId={projectId} />
+            </TabsContent>
+
+            {showPiParcours && (
+              <TabsContent value="parcours" className="mt-0">
                 <ProjectPiParcoursPanel
                   projectId={projectId}
                   projectTitle={projectTitle}
@@ -291,20 +270,8 @@ export function ProjectDetailTabs({
                   canEdit={canEditMarqueLifecycle}
                   readOnly={checklistReadOnly}
                 />
-              )}
-
-              {updates.length > 0 && (
-                <details className="group mt-8 rounded-md border border-border/60 bg-muted/20">
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-sm font-medium text-foreground [&::-webkit-details-marker]:hidden">
-                    <span>Journal d&apos;activité</span>
-                    <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
-                  </summary>
-                  <div className="border-t border-border/60 px-4 py-4">
-                    <ProjectTimeline updates={updates} limit={5} />
-                  </div>
-                </details>
-              )}
-            </TabsContent>
+              </TabsContent>
+            )}
 
             <TabsContent value="echanges" className="mt-0">
               <ProjectSectionNav

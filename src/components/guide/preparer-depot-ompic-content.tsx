@@ -5,10 +5,12 @@ import {
   Shield,
   FileText,
   ArrowRight,
+  Landmark,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DashboardSection } from "@/components/dashboard/dashboard-section";
 import { OMPIC_PUBLIC_ENDPOINTS } from "@/lib/surveillance/ompic-provider";
+import { siteConfig } from "@/config/site";
 
 const CHECKLIST_MARQUE = [
   "Recherche d'antériorité marques (OMPIC + analyse IA)",
@@ -22,7 +24,7 @@ const CHECKLIST_BREVET = [
   "Résumé invention et besoin PI complétés",
   "Rédaction brevet — 5 sections OMPIC (Parcours PI)",
   "Revendications indépendante + dépendantes (zone confidentielle)",
-  "Analyse nouveauté / FTO lancée (onglet IA)",
+  "Analyse nouveauté / FTO lancée (onglet Analyses IA)",
   "Export dossier HTML/PDF ou ZIP pour le CPI",
   "Cycle brevet — publication ~18 mois renseignée",
 ];
@@ -35,26 +37,12 @@ export function PreparerDepotOmpicContent({
   surveillanceHref: string;
 }) {
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
-      <div className="space-y-2">
-        <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-          OMPIC · Maroc
-        </p>
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-          Préparer un dépôt OMPIC
-        </h1>
-        <p className="leading-relaxed text-muted-foreground">
-          PatentIQ <strong>prépare et structure</strong> le dossier — le dépôt officiel se fait sur
-          le portail OMPIC. Cette page reprend le parcours attendu par I2PA avant{" "}
-          <code className="text-sm">directompic.ma</code>.
-        </p>
-      </div>
-
-      <Card className="card-elevated border-primary/20 bg-primary/5">
-        <CardContent className="flex flex-wrap items-center justify-between gap-4 pt-6">
+    <div className="space-y-6">
+      <div className="rounded-xl border border-primary/25 bg-primary/[0.04] p-5 sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="font-semibold">Portail officiel de dépôt</p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm font-semibold text-foreground">Portail officiel de dépôt</p>
+            <p className="mt-1 text-sm text-muted-foreground">
               directompic.ma — authentification renforcée (code sécurité)
             </p>
           </div>
@@ -68,65 +56,53 @@ export function PreparerDepotOmpicContent({
               <ExternalLink className="ml-2 h-4 w-4" />
             </a>
           </Button>
-        </CardContent>
-      </Card>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card className="card-elevated">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <FileText className="h-4 w-4 text-primary" />
-              Dépôt marque
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <ul className="space-y-2 text-sm">
-              {CHECKLIST_MARQUE.map((item) => (
-                <li key={item} className="flex gap-2">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="text-xs text-muted-foreground">
-              Fenêtre opposition : ~2 mois après publication au bulletin OMPIC.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="card-elevated">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Shield className="h-4 w-4 text-primary" />
-              Dépôt brevet
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <ul className="space-y-2 text-sm">
-              {CHECKLIST_BREVET.map((item) => (
-                <li key={item} className="flex gap-2">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="text-xs text-muted-foreground">
-              Publication indicative : ~18 mois (brevet national Maroc).
-            </p>
-          </CardContent>
-        </Card>
+        </div>
       </div>
 
-      <Card className="card-elevated">
-        <CardHeader>
-          <CardTitle className="text-base">Liens utiles OMPIC</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-wrap gap-3 text-sm">
+      <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
+        {siteConfig.productLabel} <strong className="text-foreground">prépare et structure</strong>{" "}
+        le dossier — le dépôt officiel se fait sur le portail OMPIC. Suivez les checklists ci-dessous
+        avant de vous connecter à{" "}
+        <code className="rounded bg-muted px-1.5 py-0.5 text-xs">directompic.ma</code>.
+      </p>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <DashboardSection title="Dépôt marque" icon={FileText}>
+          <ul className="space-y-2.5 p-5 pt-0 text-sm">
+            {CHECKLIST_MARQUE.map((item) => (
+              <li key={item} className="flex gap-2.5">
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="border-t border-border/80 px-5 py-3 text-xs text-muted-foreground">
+            Fenêtre opposition : ~2 mois après publication au bulletin OMPIC.
+          </p>
+        </DashboardSection>
+
+        <DashboardSection title="Dépôt brevet" icon={Shield}>
+          <ul className="space-y-2.5 p-5 pt-0 text-sm">
+            {CHECKLIST_BREVET.map((item) => (
+              <li key={item} className="flex gap-2.5">
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="border-t border-border/80 px-5 py-3 text-xs text-muted-foreground">
+            Publication indicative : ~18 mois (brevet national Maroc).
+          </p>
+        </DashboardSection>
+      </div>
+
+      <DashboardSection title="Liens utiles OMPIC" icon={Landmark}>
+        <div className="flex flex-wrap gap-4 p-5 pt-0 text-sm">
           <a
             href={OMPIC_PUBLIC_ENDPOINTS.portal}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-primary underline-offset-4 hover:underline"
+            className="font-medium text-primary underline-offset-4 hover:underline"
           >
             ompic.ma
           </a>
@@ -134,7 +110,7 @@ export function PreparerDepotOmpicContent({
             href="http://search.ompic.ma"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-primary underline-offset-4 hover:underline"
+            className="font-medium text-primary underline-offset-4 hover:underline"
           >
             search.ompic.ma (marques)
           </a>
@@ -142,15 +118,15 @@ export function PreparerDepotOmpicContent({
             href={OMPIC_PUBLIC_ENDPOINTS.patentPublication}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-primary underline-offset-4 hover:underline"
+            className="font-medium text-primary underline-offset-4 hover:underline"
           >
             patent.ompic.ma
           </a>
-        </CardContent>
-      </Card>
+        </div>
+      </DashboardSection>
 
       <div className="flex flex-wrap gap-3">
-        <Button asChild variant="default">
+        <Button asChild>
           <Link href={projectsHref}>
             Mes dossiers
             <ArrowRight className="ml-2 h-4 w-4" />

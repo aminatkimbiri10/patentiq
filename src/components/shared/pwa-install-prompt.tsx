@@ -5,7 +5,7 @@ import { Download, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 
-const DISMISS_KEY = "patentiq-pwa-install-dismissed";
+const DISMISS_KEY = "i2pa-pwa-install-dismissed";
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
@@ -72,7 +72,7 @@ export function PwaInstallPrompt() {
         "max-md:bottom-[5.5rem] max-md:left-3 max-md:right-14"
       )}
       role="dialog"
-      aria-label="Installer PatentIQ"
+      aria-label="Installer I2PA"
     >
       <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-xl">
         <div className="flex items-start gap-3">
@@ -85,7 +85,7 @@ export function PwaInstallPrompt() {
             PI
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold">Installer PatentIQ</p>
+            <p className="text-sm font-semibold">Installer I2PA</p>
             <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
               Accès rapide depuis votre écran d&apos;accueil — gratuit, même compte.
             </p>

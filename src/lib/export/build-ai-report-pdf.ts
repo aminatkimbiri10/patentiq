@@ -45,7 +45,7 @@ export function buildAiReportPdfBuffer(input: ReportHtmlInput): Promise<Buffer> 
       margin: 48,
       info: {
         Title: pdfLine(`Rapport IA — ${input.projectTitle}`),
-        Author: "PatentIQ / I2PA",
+        Author: "I2PA",
       },
     });
 
@@ -111,7 +111,7 @@ export function buildAiReportPdfBuffer(input: ReportHtmlInput): Promise<Buffer> 
       .fontSize(8)
       .fillColor("#666666")
       .text(
-        "PatentIQ — document genere automatiquement. Ne constitue pas un avis juridique.",
+        "I2PA — document genere automatiquement. Ne constitue pas un avis juridique.",
         { align: "center" }
       );
 

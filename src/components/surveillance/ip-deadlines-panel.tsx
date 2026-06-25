@@ -26,7 +26,7 @@ function projectHref(deadline: IpDeadline, viewer: "holder" | "cpi"): string {
     viewer === "cpi"
       ? `/cpi/cases/${deadline.projectId}`
       : `/dashboard/projects/${deadline.projectId}`;
-  return `${base}?tab=dossier&section=parcours-pi&pi=cycle`;
+  return `${base}?tab=parcours&section=cycle&pi=cycle`;
 }
 
 export function IpDeadlinesPanel({
@@ -78,6 +78,7 @@ export function IpDeadlinesPanel({
           </Badge>
         )}
       </div>
+      <div className="table-scroll">
       <table className="enterprise-table">
         <thead>
           <tr>
@@ -120,6 +121,7 @@ export function IpDeadlinesPanel({
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

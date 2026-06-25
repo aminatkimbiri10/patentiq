@@ -12,7 +12,7 @@ export default async function CpiReviewPage() {
   const items = await getCpiProjects(ctx.user.id, ["cpi_review", "expert_review"]);
 
   return (
-    <div className="space-y-6">
+    <div className="dash-page w-full min-w-0 space-y-6">
       <PageHeader
         icon={FileText}
         title="File de revue"

@@ -36,7 +36,7 @@ export function ExportProjectZipButton({
       const blob = await res.blob();
       const disposition = res.headers.get("Content-Disposition") ?? "";
       const match = disposition.match(/filename="([^"]+)"/);
-      const filename = match?.[1] ?? "patentiq-dossier.zip";
+      const filename = match?.[1] ?? "i2pa-dossier.zip";
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;

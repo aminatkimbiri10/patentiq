@@ -1,16 +1,29 @@
+import { i2paBrand } from "@/config/i2pa-brand";
+
 export const siteConfig = {
-  name: "PatentIQ",
+  name: i2paBrand.name,
+  productLabel: "Espace client I2PA",
   description:
-    "Plateforme professionnelle de gestion de la propriété intellectuelle — dossiers, collaboration CPI et workflows PI.",
+    "Plateforme de gestion de la propriété intellectuelle — accompagnement brevets, marques et dessins & modèles par le cabinet I2PA.",
   url: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
-  supportEmail: "support@patentiq.example",
+  supportEmail: i2paBrand.contactEmail,
   brand: {
-    blue: "#0A66C2",
+    blue: i2paBrand.primary,
+    accent: i2paBrand.accent,
   },
-  /** Console dashboard : hébergeur / structure (stage I2PA). Surcharge via .env.local */
   organization: {
-    name: process.env.NEXT_PUBLIC_ORG_NAME?.trim() || "I2PA",
-    /** Si défini, remplace le logo vectoriel intégré (ex. PNG officiel) */
-    logoUrl: process.env.NEXT_PUBLIC_ORG_LOGO_URL?.trim() || undefined,
+    name: process.env.NEXT_PUBLIC_ORG_NAME?.trim() || i2paBrand.name,
+    legalName: i2paBrand.legalName,
+    tagline: i2paBrand.tagline,
+    websiteUrl: i2paBrand.websiteUrl,
+    logoUrl:
+      process.env.NEXT_PUBLIC_ORG_LOGO_URL?.trim() || i2paBrand.defaultLogoUrl,
+  },
+  contact: {
+    email: i2paBrand.contactEmail,
+    phone: i2paBrand.phone,
+    phoneTel: i2paBrand.phoneTel,
+    address: i2paBrand.address,
+    hours: i2paBrand.hours,
   },
 };

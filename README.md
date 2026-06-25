@@ -1,6 +1,6 @@
-# PatentIQ — Plateforme PI
+# I2PA — Espace client PI
 
-Plateforme d'assistance aux porteurs de projets en propriété intellectuelle (Next.js 14 + Supabase).
+Plateforme d'assistance aux porteurs de projets en propriété intellectuelle — **I2PA** (International Intellectual Property Assistance), cabinet reconnu OMPIC.
 
 ## Stack
 

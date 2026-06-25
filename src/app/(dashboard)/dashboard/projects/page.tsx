@@ -1,15 +1,15 @@
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, FolderKanban, FileText, Brain } from "lucide-react";
 import { requireUser } from "@/lib/auth/require-user";
 import { createClient } from "@/lib/supabase/server";
 import { getHolderStats } from "@/lib/dashboard/stats";
 import { PageHeader } from "@/components/shared/page-header";
+import { DashboardPageFrame } from "@/components/dashboard/dashboard-page-frame";
 import { KpiCards } from "@/components/dashboard/kpi-cards";
 import { ProjectTable } from "@/components/dashboard/project-card";
 import { Pagination } from "@/components/shared/pagination";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
-import { FolderKanban, FileText, Brain } from "lucide-react";
 import { parsePageParam, getRange, getTotalPages, PROJECTS_PAGE_SIZE } from "@/lib/pagination";
 import type { Project } from "@/types/database";
 
@@ -38,8 +38,10 @@ export default async function ProjectsPage({
   const totalPages = getTotalPages(count ?? 0, PROJECTS_PAGE_SIZE);
 
   return (
-    <div className="space-y-6">
+    <DashboardPageFrame>
       <PageHeader
+        variant="elevated"
+        bordered={false}
         icon={FolderKanban}
         eyebrow="Portefeuille"
         title="Mes projets"
@@ -71,6 +73,7 @@ export default async function ProjectsPage({
           icon={FolderKanban}
           title="Aucun projet"
           description="Créez votre premier projet pour structurer votre parcours PI."
+          className="enterprise-panel"
           action={
             <Button asChild>
               <Link href="/dashboard/projects/new">Créer un projet</Link>
@@ -83,6 +86,6 @@ export default async function ProjectsPage({
           <Pagination basePath="/dashboard/projects" page={page} totalPages={totalPages} />
         </>
       )}
-    </div>
+    </DashboardPageFrame>
   );
 }

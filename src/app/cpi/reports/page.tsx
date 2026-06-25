@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { FileDown } from "lucide-react";
+import { FileDown, BarChart3 } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
+import { DashboardSection } from "@/components/dashboard/dashboard-section";
 import { requireUser } from "@/lib/auth/require-user";
 import { getCpiStats, getCpiProjects } from "@/lib/cpi/queries";
 import { getCpiPortfolioStats } from "@/lib/cpi/portfolio";
@@ -10,7 +11,7 @@ import { StatBarList } from "@/components/dashboard/stat-bar-list";
 import { IpDeadlinesPanel } from "@/components/surveillance/ip-deadlines-panel";
 import { ProjectStatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
-import { Briefcase, CheckCircle2, Clock, FolderKanban, BarChart3 } from "lucide-react";
+import { Briefcase, CheckCircle2, Clock, FolderKanban } from "lucide-react";
 
 export const metadata = { title: "Tableau de bord portefeuille" };
 
@@ -24,11 +25,12 @@ export default async function CpiReportsPage() {
   ]);
 
   return (
-    <div className="space-y-6">
+    <div className="dash-page w-full min-w-0 space-y-6">
       <PageHeader
         icon={BarChart3}
+        eyebrow="Portefeuille"
         title="Tableau de bord portefeuille"
-        description="Vue d'ensemble du portefeuille clients — répartition, échéances et décisions."
+        description="Répartition, échéances et décisions sur vos dossiers clients."
       >
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" asChild>
@@ -63,49 +65,51 @@ export default async function CpiReportsPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <div className="grid gap-6 sm:grid-cols-2">
-            <div className="card-elevated p-5">
-              <h2 className="mb-4 text-sm font-semibold">Répartition par statut</h2>
-              <StatBarList
-                items={portfolio.byStatus}
-                emptyLabel="Aucun dossier assigné"
-                barClassName="bg-primary"
-              />
-            </div>
-            <div className="card-elevated p-5">
-              <h2 className="mb-4 text-sm font-semibold">Répartition par type de PI</h2>
-              <StatBarList
-                items={portfolio.byCategory}
-                emptyLabel="Aucune catégorie"
-                barClassName="bg-sky-500"
-              />
-            </div>
+            <DashboardSection title="Répartition par statut">
+              <div className="p-5 pt-0">
+                <StatBarList
+                  items={portfolio.byStatus}
+                  emptyLabel="Aucun dossier assigné"
+                  barClassName="bg-primary"
+                />
+              </div>
+            </DashboardSection>
+            <DashboardSection title="Répartition par type de PI">
+              <div className="p-5 pt-0">
+                <StatBarList
+                  items={portfolio.byCategory}
+                  emptyLabel="Aucune catégorie"
+                  barClassName="bg-sky-500"
+                />
+              </div>
+            </DashboardSection>
           </div>
 
           {decided.length > 0 && (
-        <div className="card-elevated overflow-hidden">
-          <div className="border-b border-border/60 px-5 py-3">
-            <h2 className="font-semibold">Dernières décisions</h2>
-          </div>
-          <ul className="divide-y divide-border/60">
-            {decided.slice(0, 10).map((p) => (
-              <li key={p.id} className="flex items-center justify-between gap-3 px-5 py-3">
-                <Link
-                  href={`/cpi/cases/${p.id}`}
-                  className="min-w-0 font-medium hover:text-primary"
-                >
-                  <span className="block truncate">{p.title}</span>
-                  <span className="text-xs text-muted-foreground">{p.reference_code}</span>
-                </Link>
-                <ProjectStatusBadge status={p.status} />
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+            <DashboardSection title="Dernières décisions">
+              <ul className="divide-y divide-border/80">
+                {decided.slice(0, 10).map((p) => (
+                  <li
+                    key={p.id}
+                    className="flex items-center justify-between gap-3 px-5 py-3.5 transition-colors hover:bg-muted/30"
+                  >
+                    <Link
+                      href={`/cpi/cases/${p.id}`}
+                      className="min-w-0 font-medium hover:text-primary"
+                    >
+                      <span className="block truncate">{p.title}</span>
+                      <span className="text-xs text-muted-foreground">{p.reference_code}</span>
+                    </Link>
+                    <ProjectStatusBadge status={p.status} />
+                  </li>
+                ))}
+              </ul>
+            </DashboardSection>
+          )}
         </div>
 
         <aside className="space-y-6">
-          <IpDeadlinesPanel deadlines={deadlines} viewer="cpi" />
+          <IpDeadlinesPanel deadlines={deadlines} viewer="cpi" compact />
         </aside>
       </div>
     </div>

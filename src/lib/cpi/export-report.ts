@@ -134,7 +134,7 @@ export function buildCpiReportHtml(
     </thead>
     <tbody>${projectRows}</tbody>
   </table>
-  <p class="footer">PatentIQ — export automatique. Imprimez (Ctrl+P) pour obtenir un PDF.</p>
+  <p class="footer">I2PA — export automatique. Imprimez (Ctrl+P) pour obtenir un PDF.</p>
 </body>
 </html>`;
 }

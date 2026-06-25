@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { siteConfig } from "@/config/site";
 
 export type SendEmailInput = {
   to: string;
@@ -10,7 +11,7 @@ export type SendEmailInput = {
 function getFromAddress(): string {
   return (
     process.env.EMAIL_FROM?.trim() ||
-    "PatentIQ <onboarding@resend.dev>"
+    `${siteConfig.name} <onboarding@resend.dev>`
   );
 }
 
@@ -69,13 +70,13 @@ export function buildEmailHtml(params: {
     : null;
 
   const button = href
-    ? `<p style="margin:24px 0"><a href="${href}" style="background:#2563eb;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600">${params.actionLabel ?? "Ouvrir dans PatentIQ"}</a></p>`
+    ? `<p style="margin:24px 0"><a href="${href}" style="background:#2563eb;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600">${params.actionLabel ?? `Ouvrir ${siteConfig.productLabel}`}</a></p>`
     : "";
 
   return `<!DOCTYPE html><html><body style="font-family:system-ui,sans-serif;color:#1e293b;line-height:1.5;max-width:560px;margin:0 auto;padding:24px">
 <h2 style="margin:0 0 12px">${params.title}</h2>
 <p style="margin:0 0 16px;color:#475569">${params.body}</p>
 ${button}
-<p style="margin-top:32px;font-size:12px;color:#94a3b8">PatentIQ — plateforme propriété intellectuelle</p>
+<p style="margin-top:32px;font-size:12px;color:#94a3b8">${siteConfig.name} — plateforme propriété intellectuelle</p>
 </body></html>`;
 }

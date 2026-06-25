@@ -20,7 +20,7 @@ export function ProjectCard({
   const link = href ?? `/dashboard/projects/${project.id}`;
 
   return (
-    <tr className="group hover:bg-muted/30">
+    <tr className="group transition-colors hover:bg-muted/40">
       <td className="font-mono text-xs text-muted-foreground">
         {project.reference_code ?? "—"}
       </td>
@@ -83,8 +83,12 @@ export function ProjectTable({
   );
 
   if (embedded) {
-    return <div className="overflow-x-auto">{table}</div>;
+    return <div className="table-scroll">{table}</div>;
   }
 
-  return <div className="enterprise-panel overflow-hidden">{table}</div>;
+  return (
+    <div className="enterprise-panel overflow-hidden">
+      <div className="table-scroll">{table}</div>
+    </div>
+  );
 }

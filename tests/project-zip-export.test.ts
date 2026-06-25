@@ -106,7 +106,7 @@ describe("buildProjectZipBuffer", () => {
     expect(result.ok).toBe(true);
     if (!result.ok) return;
 
-    expect(result.filename).toMatch(/^patentiq-Gourde-filtrante\.zip$/);
+    expect(result.filename).toMatch(/^i2pa-Gourde-filtrante\.zip$/);
 
     const zip = await JSZip.loadAsync(result.buffer);
     expect(zip.file("README.txt")).toBeTruthy();

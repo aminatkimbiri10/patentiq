@@ -24,7 +24,7 @@ export function ChunkRecovery() {
     function recover(source: string) {
       if (sessionStorage.getItem(RELOAD_KEY)) return;
       sessionStorage.setItem(RELOAD_KEY, "1");
-      console.warn("[PatentIQ] Ressource manquante, rechargement…", source);
+      console.warn("[I2PA] Ressource manquante, rechargement…", source);
       window.location.reload();
     }
 

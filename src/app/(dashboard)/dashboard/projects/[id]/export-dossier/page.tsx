@@ -16,7 +16,7 @@ export default async function ExportDossierPage({ params }: { params: { id: stri
   const loaded = await loadPatentDossierForExport(supabase, params.id);
   if (!loaded.ok) {
     if (loaded.status === 404) notFound();
-    redirect(`/dashboard/projects/${params.id}?tab=dossier&section=parcours-pi&pi=redaction`);
+    redirect(`/dashboard/projects/${params.id}?tab=parcours&pi=redaction`);
   }
 
   return (

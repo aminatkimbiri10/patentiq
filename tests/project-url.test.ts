@@ -67,11 +67,12 @@ describe("resolveProjectTab", () => {
   it("maps legacy tab names", () => {
     expect(resolveProjectTab("tasks").tab).toBe("echanges");
     expect(resolveProjectTab("tasks").echangesSection).toBe("tasks");
-    expect(resolveProjectTab("documents").tab).toBe("dossier");
-    expect(resolveProjectTab("activity").tab).toBe("dossier");
-    expect(resolveProjectTab(null).tab).toBe("dossier");
+    expect(resolveProjectTab("documents").tab).toBe("documents");
+    expect(resolveProjectTab("activity").tab).toBe("overview");
+    expect(resolveProjectTab(null).tab).toBe("overview");
     expect(resolveProjectTab("search", "history").searchSection).toBe("history");
     expect(resolveProjectTab("search").searchSection).toBe("new");
-    expect(resolveProjectTab("valorisation").dossierSection).toBe("parcours-pi");
+    expect(resolveProjectTab("valorisation").tab).toBe("parcours");
+    expect(resolveProjectTab("dossier", "parcours-pi").tab).toBe("parcours");
   });
 });

@@ -23,7 +23,7 @@ import { requireUser } from "@/lib/auth/require-user";
 import { createClient } from "@/lib/supabase/server";
 import { ProjectDetailHeader } from "@/components/project/project-detail-header";
 import { ProjectStatusBadge } from "@/components/shared/status-badge";
-import { ProjectStatusBanner } from "@/components/dashboard/project-status-banner";
+import { ProjectDossierOverview } from "@/components/project/project-dossier-overview";
 import { ProjectStatusForm } from "@/components/dashboard/project-status-form";
 import type { CommentWithAuthor } from "@/components/dashboard/comment-thread";
 import type { ProjectTask } from "@/components/dashboard/task-list";
@@ -219,7 +219,7 @@ export default async function CpiCaseDetailPage({ params }: { params: { id: stri
   const checklist = buildEffectiveChecklistState(p.categories?.slug, p.metadata, autoCtx);
 
   return (
-    <div className="space-y-5">
+    <div className="dash-page w-full min-w-0 space-y-5">
       <ProjectDetailHeader
         backHref="/cpi/cases"
         backLabel="Dossiers CPI"
@@ -233,25 +233,36 @@ export default async function CpiCaseDetailPage({ params }: { params: { id: stri
         <ProjectStatusBadge status={p.status} />
       </ProjectDetailHeader>
 
-      <ProjectStatusBanner
+      <ProjectDossierOverview
+        projectId={p.id}
         status={p.status}
         partyLabel="Porteur"
         partyName={ownerName}
-        checklistPercent={checklist.progress.percent}
+        completenessInput={{
+          inventionSummary: p.invention_summary,
+          needDescription: p.need_description,
+          categorySlug: p.categories?.slug,
+          documentCount: activeDocCount,
+          checklistDone: checklist.progress.done,
+          checklistTotal: checklist.progress.total,
+        }}
         pendingTasks={pendingTasks}
         pendingAi={pendingAi}
         unreadMessages={unreadMessages}
       />
 
       {statusMode === "cpi" && (
-        <div className="rounded-lg border border-border/60 bg-muted/25 px-4 py-4 sm:px-5">
-          <ProjectStatusForm
-            projectId={p.id}
-            currentStatus={p.status}
-            allowedStatuses={getStatusOptions("cpi", p.status)}
-            mode="cpi"
-          />
-        </div>
+        <details className="rounded-lg border border-border/60 bg-muted/20 px-4 py-3">
+          <summary className="cursor-pointer text-sm font-medium">Modifier le statut du dossier</summary>
+          <div className="mt-3 border-t border-border/50 pt-3">
+            <ProjectStatusForm
+              projectId={p.id}
+              currentStatus={p.status}
+              allowedStatuses={getStatusOptions("cpi", p.status)}
+              mode="cpi"
+            />
+          </div>
+        </details>
       )}
 
       <CpiCaseTabs

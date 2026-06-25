@@ -10,7 +10,7 @@ import {
   sendEmail,
 } from "@/lib/email/send";
 import { getNotificationPrefs } from "@/lib/notifications/prefs";
-
+import { siteConfig } from "@/config/site";
 async function sendNotificationEmail(input: CreateNotificationInput): Promise<void> {
   const prefs = await getNotificationPrefs(input.userId);
   if (!prefs.emailEnabled) return;
@@ -20,7 +20,7 @@ async function sendNotificationEmail(input: CreateNotificationInput): Promise<vo
 
   await sendEmail({
     to: email,
-    subject: `[PatentIQ] ${input.title}`,
+    subject: `[${siteConfig.name}] ${input.title}`,
     html: buildEmailHtml({
       title: input.title,
       body: input.body ?? "",

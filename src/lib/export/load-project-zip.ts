@@ -186,7 +186,7 @@ export async function buildProjectZipBuffer(
 
     [
 
-      "PatentIQ — Export dossier I2PA",
+      "I2PA — Export dossier",
 
       "================================",
 
@@ -410,7 +410,7 @@ export async function buildProjectZipBuffer(
 
     const buffer = Buffer.from(await zip.generateAsync({ type: "arraybuffer" }));
 
-    const filename = `patentiq-${safeFilename(project.title as string)}.zip`;
+    const filename = `i2pa-${safeFilename(project.title as string)}.zip`;
 
     return { ok: true, buffer, filename };
 

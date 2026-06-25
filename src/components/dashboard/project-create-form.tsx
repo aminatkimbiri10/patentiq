@@ -8,7 +8,30 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
+function FormSection({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="enterprise-panel overflow-hidden">
+      <div className="enterprise-panel-header bg-muted/25">
+        <div>
+          <h2 className="text-sm font-semibold text-foreground">{title}</h2>
+          {description && (
+            <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
+          )}
+        </div>
+      </div>
+      <div className="space-y-4 p-5">{children}</div>
+    </div>
+  );
+}
 
 export function ProjectCreateForm({
   categories,
@@ -26,71 +49,58 @@ export function ProjectCreateForm({
 
   return (
     <form action={createProject} className="space-y-6">
-      <Card className="card-elevated border-0 shadow-none">
-        <CardHeader>
-          <CardTitle className="text-base">Informations générales</CardTitle>
-          <CardDescription>Titre, catégorie et description du projet</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Titre *</Label>
-            <Input
-              id="title"
-              name="title"
-              required
-              placeholder={
-                categorySlug === "marque"
-                  ? "Ex. TechMaroc"
-                  : categorySlug === "dessin-modele"
-                    ? "Ex. Gourde isotherme Atlas"
-                    : "Ex. Système de filtration innovant"
-              }
-            />
-          </div>
-          <CategorySelect
-            categories={categories}
-            value={categoryId}
-            onChange={setCategoryId}
+      <FormSection title="Informations générales" description="Titre, catégorie et description">
+        <div className="space-y-2">
+          <Label htmlFor="title">Titre *</Label>
+          <Input
+            id="title"
+            name="title"
+            required
+            placeholder={
+              categorySlug === "marque"
+                ? "Ex. TechMaroc"
+                : categorySlug === "dessin-modele"
+                  ? "Ex. Gourde isotherme Atlas"
+                  : "Ex. Système de filtration innovant"
+            }
           />
-          <div className="space-y-2">
-            <Label htmlFor="description">Description courte</Label>
-            <Textarea id="description" name="description" rows={3} placeholder="Résumé en quelques lignes…" />
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+        <CategorySelect categories={categories} value={categoryId} onChange={setCategoryId} />
+        <div className="space-y-2">
+          <Label htmlFor="description">Description courte</Label>
+          <Textarea id="description" name="description" rows={3} placeholder="Résumé en quelques lignes…" />
+        </div>
+      </FormSection>
 
-      <Card className="card-elevated border-0 shadow-none">
-        <CardHeader>
-          <CardTitle className="text-base">{labels.detailsCardTitle}</CardTitle>
-          <CardDescription>{labels.detailsCardDescription}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="invention_summary">{labels.summaryLabel}</Label>
-            <Textarea
-              id="invention_summary"
-              name="invention_summary"
-              rows={4}
-              placeholder={labels.summaryPlaceholder}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="need_description">Besoin / objectif PI</Label>
-            <Textarea
-              id="need_description"
-              name="need_description"
-              rows={3}
-              placeholder={
-                categorySlug === "marque"
-                  ? "Enregistrement marque, classes Nice, opposition…"
-                  : categorySlug === "dessin-modele"
-                    ? "Protection apparence, classes Locarno, antériorité visuelle…"
-                    : "Brevet, dépôt provisoire, étude de liberté…"
-              }
-            />
-          </div>
-        </CardContent>
-      </Card>
+      <FormSection
+        title={labels.detailsCardTitle}
+        description={labels.detailsCardDescription}
+      >
+        <div className="space-y-2">
+          <Label htmlFor="invention_summary">{labels.summaryLabel}</Label>
+          <Textarea
+            id="invention_summary"
+            name="invention_summary"
+            rows={4}
+            placeholder={labels.summaryPlaceholder}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="need_description">Besoin / objectif PI</Label>
+          <Textarea
+            id="need_description"
+            name="need_description"
+            rows={3}
+            placeholder={
+              categorySlug === "marque"
+                ? "Enregistrement marque, classes Nice, opposition…"
+                : categorySlug === "dessin-modele"
+                  ? "Protection apparence, classes Locarno, antériorité visuelle…"
+                  : "Brevet, dépôt provisoire, étude de liberté…"
+            }
+          />
+        </div>
+      </FormSection>
 
       <Button type="submit" size="lg" className="w-full sm:w-auto">
         Créer le projet

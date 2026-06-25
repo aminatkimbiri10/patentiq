@@ -4,7 +4,7 @@ import { siteConfig } from "@/config/site";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: siteConfig.name,
-    short_name: "PatentIQ",
+    short_name: "I2PA",
     description: siteConfig.description,
     start_url: "/dashboard",
     scope: "/",
@@ -16,9 +16,9 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ["business", "productivity"],
     icons: [
       {
-        src: "/icons/icon.svg",
-        sizes: "any",
-        type: "image/svg+xml",
+        src: "/logos/i2pa.png",
+        sizes: "512x512",
+        type: "image/png",
         purpose: "any",
       },
       {

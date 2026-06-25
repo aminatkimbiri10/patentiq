@@ -4,6 +4,7 @@ import { fr } from "date-fns/locale";
 import { requireUser } from "@/lib/auth/require-user";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/shared/page-header";
+import { DashboardPageFrame } from "@/components/dashboard/dashboard-page-frame";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ListPanel, ListPanelItem } from "@/components/shared/list-panel";
@@ -68,9 +69,12 @@ export default async function TasksPage({
   const totalPages = getTotalPages(count ?? 0, LIST_PAGE_SIZE);
 
   return (
-    <div className="space-y-6">
+    <DashboardPageFrame>
       <PageHeader
+        variant="elevated"
+        bordered={false}
         icon={ListChecks}
+        eyebrow="Actions"
         title="Mes tâches"
         description={
           count != null
@@ -83,6 +87,7 @@ export default async function TasksPage({
           icon={ListChecks}
           title="Aucune tâche"
           description="Votre conseiller PI vous assignera des actions depuis le dossier (checklist ou formulaire dédié)."
+          className="enterprise-panel"
           action={
             <Button variant="outline" asChild>
               <Link href="/dashboard/projects">
@@ -151,6 +156,6 @@ export default async function TasksPage({
           <Pagination basePath="/dashboard/tasks" page={page} totalPages={totalPages} />
         </>
       )}
-    </div>
+    </DashboardPageFrame>
   );
 }

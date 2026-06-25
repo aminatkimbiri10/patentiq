@@ -1,7 +1,7 @@
 import type { AiSearch, AiSearchType } from "@/types/database";
 import { projectAiSearchUrl, type ProjectViewerRole } from "@/lib/project-routes";
 
-/** Items checklist liés à une recherche d'antériorité documentée dans PatentIQ */
+/** Items checklist liés à une recherche d'antériorité documentée dans I2PA */
 export const PRIOR_ART_CHECKLIST_IDS = new Set([
   "anteriorite",
   "anteriorite-marque",

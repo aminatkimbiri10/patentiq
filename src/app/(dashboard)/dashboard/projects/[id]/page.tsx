@@ -2,11 +2,10 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/require-user";
 import { createClient } from "@/lib/supabase/server";
 import { ProjectDetailHeader } from "@/components/project/project-detail-header";
+import { ProjectDossierOverview } from "@/components/project/project-dossier-overview";
 import { ProjectStatusBadge } from "@/components/shared/status-badge";
 import { ProjectStatusForm } from "@/components/dashboard/project-status-form";
 import { ProjectDetailTabs } from "@/components/dashboard/project-detail-tabs";
-import { ProjectOnboardingHint } from "@/components/dashboard/project-onboarding-hint";
-import { ProjectStatusBanner } from "@/components/dashboard/project-status-banner";
 import { getProjectUnreadMessageCount } from "@/lib/messages/read-cursor";
 import { DocumentsAckForm } from "@/components/dashboard/documents-ack-form";
 import type { Project, Document, AiSearch, AiResult } from "@/types/database";
@@ -230,7 +229,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
   });
 
   return (
-    <div className="space-y-5">
+    <div className="w-full min-w-0 max-w-full space-y-4 sm:space-y-5">
       <ProjectDetailHeader
         backHref="/dashboard/projects"
         backLabel="Mes projets"
@@ -238,6 +237,8 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
         title={p.title}
         referenceCode={p.reference_code}
         lastActivityAt={p.last_activity_at}
+        partyLabel="CPI"
+        partyName={cpiName}
       >
         <ProjectStatusBadge status={p.status} />
         {holderMode === "holder" && (
@@ -245,34 +246,39 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
         )}
       </ProjectDetailHeader>
 
-      <ProjectStatusBanner
+      <ProjectDossierOverview
+        projectId={p.id}
         status={p.status}
         cpiName={cpiName}
-        checklistPercent={checklist.progress.percent}
+        completenessInput={{
+          inventionSummary: p.invention_summary,
+          needDescription: p.need_description,
+          categorySlug: p.categories?.slug,
+          documentCount: activeDocs.length,
+          checklistDone: checklist.progress.done,
+          checklistTotal: checklist.progress.total,
+        }}
         pendingTasks={pendingTasks}
         pendingAi={pendingAi}
         unreadMessages={unreadMessages}
-      />
-
-      <ProjectOnboardingHint
-        projectId={p.id}
-        documentCount={activeDocs.length}
-        checklistPercent={checklist.progress.percent}
       />
 
       {p.status === "awaiting_documents" && holderMode === "holder" && (
         <DocumentsAckForm projectId={p.id} />
       )}
 
-      {holderMode === "holder" && (
-        <div className="rounded-lg border border-border/60 bg-muted/25 px-4 py-4 sm:px-5">
-          <ProjectStatusForm
-            projectId={p.id}
-            currentStatus={p.status}
-            allowedStatuses={getStatusOptions("holder", p.status)}
-            mode="holder"
-          />
-        </div>
+      {holderMode === "holder" && p.status === "draft" && (
+        <details className="rounded-lg border border-border/60 bg-muted/20 px-4 py-3">
+          <summary className="cursor-pointer text-sm font-medium">Changer le statut du dossier</summary>
+          <div className="mt-3 pt-3 border-t border-border/50">
+            <ProjectStatusForm
+              projectId={p.id}
+              currentStatus={p.status}
+              allowedStatuses={getStatusOptions("holder", p.status)}
+              mode="holder"
+            />
+          </div>
+        </details>
       )}
 
       {expertRecommendations.length > 0 && (

@@ -27,7 +27,7 @@ export default async function NewProjectPage() {
     .order("sort_order");
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="dash-page mx-auto w-full min-w-0 max-w-2xl space-y-6">
       <Button variant="ghost" size="sm" className="-ml-2 text-muted-foreground" asChild>
         <Link href="/dashboard/projects">
           <ArrowLeft className="mr-1 h-4 w-4" />
