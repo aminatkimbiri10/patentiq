@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils/cn";
 import { siteConfig } from "@/config/site";
+import { i2paBrand } from "@/config/i2pa-brand";
 
 const BRAND_BLUE = siteConfig.brand.blue;
 const ORANGE = "#E86A43";
@@ -33,14 +34,18 @@ export function I2PALogo({
     return (
       <span
         className={cn(
-          "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-primary/15 bg-primary/[0.06]",
+          "relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-lg bg-black",
           className
         )}
         aria-hidden
       >
-        <span className="text-[17px] font-extrabold leading-none" style={{ color: ORANGE }}>
-          2
-        </span>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={i2paBrand.appMarkUrl}
+          alt=""
+          className="h-full w-full scale-110 object-cover object-center"
+          draggable={false}
+        />
       </span>
     );
   }

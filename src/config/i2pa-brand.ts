@@ -16,6 +16,8 @@ export const i2paBrand = {
   accent: "#c9a227",
   /** Logo PNG officiel (public/logos/i2pa.png) */
   defaultLogoUrl: "/logos/i2pa.png",
+  /** Icône ampoule (favicon, PWA) */
+  appMarkUrl: "/icons/i2pa-bulb.png",
 } as const;
 
 export const i2paServices = [

@@ -17,22 +17,22 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ["business", "productivity"],
     icons: [
       {
-        src: "/logos/i2pa.png",
+        src: i2paBrand.appMarkUrl,
         sizes: "512x512",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: "/icons/i2pa-mark.svg",
-        sizes: "any",
-        type: "image/svg+xml",
-        purpose: "any",
+        src: i2paBrand.appMarkUrl,
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "maskable",
       },
       {
-        src: "/icons/icon-maskable.svg",
+        src: "/logos/i2pa.png",
         sizes: "512x512",
-        type: "image/svg+xml",
-        purpose: "maskable",
+        type: "image/png",
+        purpose: "any",
       },
     ],
   };

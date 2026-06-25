@@ -6,6 +6,7 @@ import { Download, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 import { siteConfig } from "@/config/site";
+import { i2paBrand } from "@/config/i2pa-brand";
 
 const DISMISS_KEY = "i2pa-pwa-install-dismissed";
 
@@ -78,13 +79,13 @@ export function PwaInstallPrompt() {
     >
       <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-xl">
         <div className="flex items-start gap-3">
-          <div className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-black p-1.5 shadow-md ring-1 ring-border/40">
+          <div className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-black shadow-md ring-1 ring-border/40">
             <Image
-              src="/icons/i2pa-mark.svg"
+              src={i2paBrand.appMarkUrl}
               alt={siteConfig.name}
-              width={36}
-              height={36}
-              className="h-full w-full object-contain"
+              width={44}
+              height={44}
+              className="h-full w-full scale-110 object-cover object-center"
               unoptimized
             />
           </div>

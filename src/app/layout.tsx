@@ -27,11 +27,11 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/icons/i2pa-mark.svg", type: "image/svg+xml" },
+      { url: i2paBrand.appMarkUrl, type: "image/png", sizes: "512x512" },
       { url: "/logos/i2pa.png", type: "image/png", sizes: "512x512" },
     ],
-    apple: [{ url: "/logos/i2pa.png", type: "image/png" }],
-    shortcut: [{ url: "/icons/i2pa-mark.svg", type: "image/svg+xml" }],
+    apple: [{ url: i2paBrand.appMarkUrl, type: "image/png" }],
+    shortcut: [{ url: i2paBrand.appMarkUrl, type: "image/png" }],
   },
 };
 
