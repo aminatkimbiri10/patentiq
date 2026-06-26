@@ -27,15 +27,17 @@ export function WorkflowPanel({ workflow }: { workflow: DashboardWorkflow }) {
           className="rounded-none border-0 bg-transparent py-10"
         />
       ) : (
-        <div className="space-y-5 p-5">
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div>
+        <div className="space-y-5 p-4 sm:p-5">
+          <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
+            <div className="min-w-0">
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Étape actuelle
               </p>
-              <p className="mt-1 text-lg font-semibold text-foreground">{workflow.currentStageLabel}</p>
+              <p className="mt-1 break-words text-base font-semibold text-foreground sm:text-lg">
+                {workflow.currentStageLabel}
+              </p>
             </div>
-            <div className="text-right">
+            <div className="shrink-0 sm:text-right">
               <p className="text-3xl font-semibold tabular-nums text-primary">{workflow.progress}%</p>
               <p className="text-xs text-muted-foreground">Progression estimée</p>
             </div>
@@ -48,12 +50,12 @@ export function WorkflowPanel({ workflow }: { workflow: DashboardWorkflow }) {
             />
           </div>
 
-          <ol className="flex flex-wrap gap-2">
+          <ol className="-mx-1 flex gap-2 overflow-x-auto overscroll-x-contain px-1 pb-1 scrollbar-thin">
             {workflow.stages.map((stage, idx) => (
               <li
                 key={stage.id}
                 className={cn(
-                  "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-colors",
+                  "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-colors",
                   stage.current
                     ? "border-primary/40 bg-primary/10 font-semibold text-primary"
                     : stage.done
@@ -63,7 +65,7 @@ export function WorkflowPanel({ workflow }: { workflow: DashboardWorkflow }) {
               >
                 <span
                   className={cn(
-                    "flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold",
+                    "flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-bold",
                     stage.current
                       ? "bg-primary text-primary-foreground"
                       : stage.done
@@ -73,7 +75,7 @@ export function WorkflowPanel({ workflow }: { workflow: DashboardWorkflow }) {
                 >
                   {stage.done ? <Check className="h-2.5 w-2.5" /> : idx + 1}
                 </span>
-                <span className="max-w-[8rem] truncate sm:max-w-none">{stage.label}</span>
+                <span className="max-w-[9rem] truncate sm:max-w-[12rem]">{stage.label}</span>
               </li>
             ))}
           </ol>

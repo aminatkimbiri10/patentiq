@@ -81,8 +81,8 @@ export function RoleDashboardOverview({
 
         {config.extraBeforeGrid}
 
-        <div className="grid gap-5 xl:grid-cols-12">
-          <div className="space-y-5 xl:col-span-8">
+        <div className="grid min-w-0 gap-5 xl:grid-cols-12">
+          <div className="min-w-0 space-y-5 xl:col-span-8">
             {config.showWorkflow !== false && <WorkflowPanel workflow={data.workflow} />}
 
             <DashboardSection
@@ -111,7 +111,7 @@ export function RoleDashboardOverview({
             </DashboardSection>
           </div>
 
-          <aside className="space-y-5 xl:col-span-4">
+          <aside className="min-w-0 space-y-5 xl:col-span-4">
             <DashboardTasksPanel
               tasks={tasks}
               actionHref={data.tasksHref}
@@ -140,8 +140,8 @@ export function RoleDashboardOverview({
 
       {config.showQuickActions !== false && <RoleQuickActions role={data.role} />}
 
-      <div className="grid gap-6 xl:grid-cols-12">
-        <div className="space-y-6 xl:col-span-8">
+      <div className="grid min-w-0 gap-6 xl:grid-cols-12">
+        <div className="min-w-0 space-y-6 xl:col-span-8">
           {config.showWorkflow !== false && <WorkflowPanel workflow={data.workflow} />}
 
           <DashboardSection
@@ -186,7 +186,7 @@ export function RoleDashboardOverview({
           {config.showActivity !== false && <ActivityFeedPanel activity={data.activity} />}
         </div>
 
-        <aside className="space-y-6 xl:col-span-4">
+        <aside className="min-w-0 space-y-6 xl:col-span-4">
           {config.showAi !== false && (
             <AiInsightsPanel insights={data.aiInsights} role={data.role} />
           )}

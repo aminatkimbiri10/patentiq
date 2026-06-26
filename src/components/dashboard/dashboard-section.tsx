@@ -22,23 +22,23 @@ export function DashboardSection({
   return (
     <section className={cn("enterprise-panel overflow-hidden", className)}>
       <div className="enterprise-panel-header bg-muted/30">
-        <div className="flex min-w-0 items-center gap-2.5">
+        <div className="flex min-w-0 flex-1 items-center gap-2.5">
           {Icon && (
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <Icon className="h-4 w-4" />
             </span>
           )}
           <div className="min-w-0">
-            <h2 className="text-sm font-semibold text-foreground">{title}</h2>
+            <h2 className="break-words text-sm font-semibold text-foreground">{title}</h2>
             {description && (
-              <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
+              <p className="mt-0.5 break-words text-xs text-muted-foreground">{description}</p>
             )}
           </div>
         </div>
         {actionHref && (
           <Link
             href={actionHref}
-            className="group inline-flex items-center gap-1 text-xs font-medium text-primary transition-colors hover:text-primary/80"
+            className="group inline-flex shrink-0 items-center gap-1 self-start text-xs font-medium text-primary transition-colors hover:text-primary/80 sm:self-center"
           >
             {actionLabel}
             <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />

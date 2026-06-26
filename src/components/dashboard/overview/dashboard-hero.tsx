@@ -25,20 +25,26 @@ export function DashboardHero({
 
   return (
     <section className={cn("dashboard-hero animate-fade-in", compact && "p-5 sm:p-6")}>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0 space-y-1.5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0 flex-1 space-y-1.5">
           <div className="flex flex-wrap items-center gap-2">
             <p className="section-eyebrow">Accueil</p>
             <Badge variant="secondary" className="font-normal">
               {ROLE_LABELS[role]}
             </Badge>
           </div>
-          <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+          <h1 className="break-words text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
             {greeting}
           </h1>
-          <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">{statusLine}</p>
+          <p className="max-w-2xl break-words text-sm leading-relaxed text-muted-foreground">
+            {statusLine}
+          </p>
         </div>
-        {action && <div className="flex shrink-0 flex-wrap gap-2">{action}</div>}
+        {action && (
+          <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap">
+            {action}
+          </div>
+        )}
       </div>
 
       {!compact && highlights.length > 0 && (

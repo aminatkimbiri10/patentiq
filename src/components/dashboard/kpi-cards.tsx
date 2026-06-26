@@ -21,7 +21,7 @@ export function KpiCards({
         return (
           <div key={item.title} className="enterprise-kpi-item group">
             <div className="flex items-start justify-between gap-3">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground break-words">
                 {item.title}
               </p>
               {Icon && (

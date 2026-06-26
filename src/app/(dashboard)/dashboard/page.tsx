@@ -27,7 +27,7 @@ export default async function DashboardPage() {
         projectsHref: "/dashboard/projects",
         projectHrefFor: (id) => `/dashboard/projects/${id}`,
         headerAction: (
-          <Button asChild>
+          <Button asChild className="w-full sm:w-auto">
             <Link href="/dashboard/projects/new">
               <Plus className="mr-1.5 h-4 w-4" />
               Nouveau projet
